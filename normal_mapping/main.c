@@ -17,10 +17,6 @@
 #include "../common/math.h"
 #include "../common/draw.h"
 
-static uint32_t *alloc_vertices;
-static uint32_t *alloc_tex_normal;
-static uint32_t  num_vertices;
-
 XguMatrix4x4 m_model, m_view, m_proj;
 
 XguVec4 v_obj_rot   = {  0,   0,   0,  1 };
@@ -37,6 +33,10 @@ typedef struct Vertex {
 } Vertex;
 
 #include "verts.h"
+
+static Vertex   *alloc_vertices;
+static uint32_t *alloc_tex_normal;
+static uint32_t  num_vertices;
 
 static void init_shader(void) {
     // Setup vertex shader
@@ -170,9 +170,9 @@ int main(void) {
         pb_end(p);
         
         // Setup vertex attributes (Note: nv2a_reg.h vertex attribute impls have wrong values, so it's manually set for now)
-        xgux_set_attrib_pointer(XGU_VERTEX_ARRAY, XGU_FLOAT, 3, sizeof(Vertex), &alloc_vertices[0]);
-        xgux_set_attrib_pointer(8 /*XGU_TEXCOORD0_ARRAY*/, XGU_FLOAT, 2, sizeof(Vertex), &alloc_vertices[3]);
-        xgux_set_attrib_pointer(XGU_NORMAL_ARRAY, XGU_FLOAT, 3, sizeof(Vertex), &alloc_vertices[5]);
+        xgux_set_attrib_pointer(XGU_VERTEX_ARRAY, XGU_FLOAT, 3, sizeof(alloc_vertices[0]), &alloc_vertices[0].pos[0]);
+        xgux_set_attrib_pointer(8 /*XGU_TEXCOORD0_ARRAY*/, XGU_FLOAT, 2, sizeof(alloc_vertices[0]), &alloc_vertices[0].texcoord[0]);
+        xgux_set_attrib_pointer(XGU_NORMAL_ARRAY, XGU_FLOAT, 3, sizeof(alloc_vertices[0]), &alloc_vertices[0].normal[0]);
         
         // Begin drawing triangles
         draw_vertex_arrays(XGU_TRIANGLES, num_vertices);
