@@ -1,4 +1,4 @@
-XBE_TITLE = simple_lighting
+XBE_TITLE = vertex_program_lighting
 GEN_XISO = $(XBE_TITLE).iso
 
 SRCS =  $(wildcard $(CURDIR)/*.c) \
