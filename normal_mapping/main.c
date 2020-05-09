@@ -159,9 +159,9 @@ int main(void) {
         p = xgu_set_transform_constant(p, &v_cam_loc, 1);
         p = xgu_set_transform_constant(p, &v_light_pos, 1);
         
-        // Send shader constants 0 2 64 1 (indicates constants end?)
-        XguVec4 constants_0 = {0, 2, 64, 1};
-        p = xgu_set_transform_constant(p, &constants_0, 1);
+        // Send shader constants
+        XguVec4 constants = {0, 2, 1, 0};
+        p = xgu_set_transform_constant(p, &constants, 1);
         
         // Clear all attributes
         for(int i = 0; i < 16; i++) {
