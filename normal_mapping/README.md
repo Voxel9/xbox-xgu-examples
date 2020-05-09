@@ -9,4 +9,4 @@ Demonstrates normal mapping using the dot functionality in register combiners.
 | D-pad up/down    | Move point light on Z axis |
 
 ## Screenshot
-![normal_mapping](_screenshots/normal_mapping.png)
+![normal_mapping](/_screenshots/normal_mapping.png)
