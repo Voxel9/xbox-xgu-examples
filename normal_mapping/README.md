@@ -2,6 +2,8 @@
 
 Demonstrates normal mapping using the dot functionality in register combiners.
 
+<sub>Leather diffuse and normal map textures by cc0textures (https://cc0textures.com/view?id=Leather011)</sub>
+
 ## Controls
 | **Button**       | **Action**                 |
 | ---------------- | -------------------------- |
