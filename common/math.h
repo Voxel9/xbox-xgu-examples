@@ -6,6 +6,8 @@
 void mtx_identity(XguMatrix4x4 *mtx);
 
 void mtx_multiply(XguMatrix4x4 *mtx_out, XguMatrix4x4 mtx1, XguMatrix4x4 mtx2);
+void mtx_transpose(XguMatrix4x4 *mtx_out, XguMatrix4x4 mtx_in);
+void mtx_inverse(XguMatrix4x4 *mtx_out, XguMatrix4x4 mtx_in);
 
 void mtx_translate(XguMatrix4x4 *mtx_out, XguMatrix4x4 mtx_in, XguVec4 translate);
 void mtx_rotate(XguMatrix4x4 *mtx_out, XguMatrix4x4 mtx_in, XguVec4 rotate);

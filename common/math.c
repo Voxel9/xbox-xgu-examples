@@ -32,6 +32,44 @@ void mtx_multiply(XguMatrix4x4 *mtx_out, XguMatrix4x4 mtx1, XguMatrix4x4 mtx2) {
     mtx_out->f[15] = mtx1.f[12] * mtx2.f[3] + mtx1.f[13] * mtx2.f[7] + mtx1.f[14] * mtx2.f[11] + mtx1.f[15] * mtx2.f[15];
 }
 
+void mtx_transpose(XguMatrix4x4 *mtx_out, XguMatrix4x4 mtx_in) {
+    XguMatrix4x4 temp;
+    
+    temp.f[0]  = mtx_in.f[0];
+    temp.f[1]  = mtx_in.f[4];
+    temp.f[2]  = mtx_in.f[8];
+    temp.f[3]  = mtx_in.f[12];
+    temp.f[4]  = mtx_in.f[1];
+    temp.f[5]  = mtx_in.f[5];
+    temp.f[6]  = mtx_in.f[9];
+    temp.f[7]  = mtx_in.f[13];
+    temp.f[8]  = mtx_in.f[2];
+    temp.f[9]  = mtx_in.f[6];
+    temp.f[10] = mtx_in.f[10];
+    temp.f[11] = mtx_in.f[14];
+    temp.f[12] = mtx_in.f[3];
+    temp.f[13] = mtx_in.f[7];
+    temp.f[14] = mtx_in.f[11];
+    temp.f[15] = mtx_in.f[15];
+    
+    memcpy(mtx_out, &temp, sizeof(XguMatrix4x4));
+}
+
+void mtx_inverse(XguMatrix4x4 *mtx_out, XguMatrix4x4 mtx_in) {
+    XguMatrix4x4 temp;
+    
+    mtx_transpose(&temp, mtx_in);
+    temp.f[3] = 0.00f;
+    temp.f[7] = 0.00f;
+    temp.f[11] = 0.00f;
+    temp.f[12] = -(mtx_in.f[12] * temp.f[0] + mtx_in.f[13] * temp.f[4] + mtx_in.f[14] * temp.f[8]);
+    temp.f[13] = -(mtx_in.f[12] * temp.f[1] + mtx_in.f[13] * temp.f[5] + mtx_in.f[14] * temp.f[9]);
+    temp.f[14] = -(mtx_in.f[12] * temp.f[2] + mtx_in.f[13] * temp.f[6] + mtx_in.f[14] * temp.f[10]);
+    temp.f[15] = 1.00f;
+    
+    memcpy(mtx_out, &temp, sizeof(XguMatrix4x4));
+}
+
 void mtx_translate(XguMatrix4x4 *mtx_out, XguMatrix4x4 mtx_in, XguVec4 translate) {
     XguMatrix4x4 temp;
     
