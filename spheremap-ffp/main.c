@@ -11,18 +11,24 @@
 #include "../common/input.h"
 #include "../common/math.h"
 
+#include "texture.h"
+
 static uint32_t *alloc_texture;
 static uint32_t *alloc_vertices;
 static uint32_t  num_vertices;
 
-XguMatrix4x4 m_model, m_view, m_proj, m_mvp;
+XguMatrix4x4 m_model, m_view, m_proj, m_mvp, m_tex;
 
 XguVec4 v_obj_rot   = {  0,   0,   0,  1 };
 XguVec4 v_obj_scale = {  1,   1,   1,  1 };
 XguVec4 v_obj_pos   = {  0,   0,   0,  1 };
 
-XguVec4 v_cam_pos   = {  0,   0,   2,  1 };
+XguVec4 v_cam_pos   = {  0,   0,  40,  1 };
 XguVec4 v_cam_rot   = {  0,   0,   0,  1 };
+
+XguVec4 v_tex_pos   = {  0,   0,   0,  1 };
+XguVec4 v_tex_rot   = {  0,   0,   0,  1 };
+XguVec4 v_tex_scale = { texture_width, texture_height,   1,  1 };
 
 typedef struct Vertex {
     float pos[3];
@@ -31,7 +37,6 @@ typedef struct Vertex {
 } Vertex;
 
 #include "verts.h"
-#include "texture.h"
 
 int main(void) {
     XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
@@ -79,6 +84,12 @@ int main(void) {
         mtx_scale(&m_model, m_model, v_obj_scale);
         mtx_translate(&m_model, m_model, v_obj_pos);
         
+        // Texture matrix
+        mtx_identity(&m_tex);
+        mtx_rotate(&m_tex, m_tex, v_tex_rot);
+        mtx_scale(&m_tex, m_tex, v_tex_scale);
+        mtx_translate(&m_tex, m_tex, v_tex_pos);
+        
         while(pb_busy());
         
         p = pb_begin();
@@ -123,7 +134,8 @@ int main(void) {
             p = xgu_set_texgen_t(p, i, XGU_TEXGEN_SPHERE_MAP);
             p = xgu_set_texgen_r(p, i, XGU_TEXGEN_DISABLE);
             p = xgu_set_texgen_q(p, i, XGU_TEXGEN_DISABLE);
-            p = xgu_set_texture_matrix_enable(p, i, false);
+            p = xgu_set_texture_matrix_enable(p, i, true);
+            p = xgu_set_texture_matrix(p, i, m_tex.f);
         }
         
         p = xgu_set_transform_execution_mode(p, XGU_FIXED, XGU_RANGE_MODE_PRIVATE);
