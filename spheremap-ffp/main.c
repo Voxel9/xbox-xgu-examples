@@ -128,7 +128,6 @@ int main(void) {
         p = xgu_set_skin_mode(p,  XGU_SKIN_MODE_OFF);
         p = xgu_set_lighting_enable(p, false);
         
-        // Similar to programmable texture stage
         for(int i = 0; i < XGU_TEXTURE_COUNT; i++) {
             p = xgu_set_texgen_s(p, i, XGU_TEXGEN_SPHERE_MAP);
             p = xgu_set_texgen_t(p, i, XGU_TEXGEN_SPHERE_MAP);
