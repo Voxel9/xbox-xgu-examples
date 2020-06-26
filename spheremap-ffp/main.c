@@ -101,7 +101,7 @@ int main(void) {
         
         // Texture stage 0
         p = xgu_set_texture_offset(p, 0, (void *)((uint32_t)alloc_texture & 0x03ffffff));
-        p = xgu_set_texture_format(p, 0, 2, 0, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8R8G8B8, 1, 0, 0, 0);
+        p = xgu_set_texture_format(p, 0, 2, 0, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8B8G8R8, 1, 0, 0, 0);
         p = xgu_set_texture_address(p, 0, XGU_CLAMP_TO_BORDER, false, XGU_CLAMP_TO_BORDER, false, XGU_CLAMP_TO_EDGE, false, false);
         p = xgu_set_texture_control0(p, 0, 1, 0, 0);
         p = xgu_set_texture_control1(p, 0, texture_pitch);
@@ -140,27 +140,37 @@ int main(void) {
         
         p = xgu_set_transform_execution_mode(p, XGU_FIXED, XGU_RANGE_MODE_PRIVATE);
         
+        // Modelview matrix
         XguMatrix4x4 m_mv;
         mtx_multiply(&m_mv, m_model, m_view);
         
+        // MVP matrix
         XguMatrix4x4 m_mvp;
         mtx_multiply(&m_mvp, m_mv, m_proj);
         
+        // Transposed projection matrix
         XguMatrix4x4 mt_p;
         mtx_transpose(&mt_p, m_proj);
         
+        // Transposed MV matrix
         XguMatrix4x4 mt_mv;
         mtx_transpose(&mt_mv, m_mv);
         
+        // Inverse of transposed MV matrix
         XguMatrix4x4 mt_mv_inv;
         mtx_inverse(&mt_mv_inv, mt_mv);
         
+        // Transposed inverse of transposed MV matrix
+        XguMatrix4x4 mt_mv_inv_t;
+        mtx_transpose(&mt_mv_inv_t, mt_mv_inv);
+        
+        // Transposed MVP matrix
         XguMatrix4x4 mt_mvp;
         mtx_transpose(&mt_mvp, m_mvp);
         
         for(int i = 0; i < XGU_WEIGHT_COUNT; i++) {
             p = xgu_set_model_view_matrix(p, i, mt_mv.f);
-            p = xgu_set_inverse_model_view_matrix(p, i, mt_mv_inv.f);
+            p = xgu_set_inverse_model_view_matrix(p, i, mt_mv_inv_t.f);
         }
         
         p = xgu_set_projection_matrix(p, mt_p.f);
