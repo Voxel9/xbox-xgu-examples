@@ -60,10 +60,6 @@ int main(void) {
     memcpy(alloc_vertices, vertices, sizeof(vertices));
     num_vertices = sizeof(vertices)/sizeof(vertices[0]);
     
-    // Create view matrix (our camera is static)
-    mtx_identity(&m_view);
-    mtx_world_view(&m_view, v_cam_pos, v_cam_rot);
-    
     input_init();
     
     while(1) {
@@ -84,6 +80,10 @@ int main(void) {
         mtx_scale(&m_model, m_model, v_obj_scale);
         mtx_translate(&m_model, m_model, v_obj_pos);
         
+        // Create view matrix (our camera is static)
+        mtx_identity(&m_view);
+        mtx_world_view(&m_view, v_cam_pos, v_cam_rot);
+        
         // Texture matrix
         mtx_identity(&m_tex);
         mtx_rotate(&m_tex, m_tex, v_tex_rot);
@@ -96,6 +96,8 @@ int main(void) {
         
         p = xgu_set_color_clear_value(p, 0xff0000ff);
         p = xgu_clear_surface(p, XGU_CLEAR_Z | XGU_CLEAR_STENCIL | XGU_CLEAR_COLOR);
+        
+        p = xgu_set_front_face(p, XGU_FRONT_CCW);
         
         p = xgu_set_depth_test_enable(p, false);
         
