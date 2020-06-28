@@ -1,4 +1,4 @@
-XBE_TITLE = spheremap-ffp
+XBE_TITLE = spheremap_ffp
 GEN_XISO = $(XBE_TITLE).iso
 
 SRCS =  $(wildcard $(CURDIR)/*.c) \
