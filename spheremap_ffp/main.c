@@ -1,13 +1,16 @@
 #include <hal/video.h>
 #include <xboxkrnl/xboxkrnl.h>
 
+#include <pbkit/pbkit.h>
+#include <xgu/xgu.h>
+#include <xgu/xgux.h>
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 
-#include "../common/draw.h"
 #include "../common/input.h"
 #include "../common/math.h"
 
@@ -189,7 +192,7 @@ int main(void) {
         xgux_set_attrib_pointer(XGU_TEXCOORD0_ARRAY, XGU_FLOAT, 2, sizeof(Vertex), &alloc_vertices[3]);
         xgux_set_attrib_pointer(XGU_NORMAL_ARRAY, XGU_FLOAT, 3, sizeof(Vertex), &alloc_vertices[5]);
         
-        draw_vertex_arrays(XGU_TRIANGLES, num_vertices);
+        xgux_draw_arrays(XGU_TRIANGLES, 0, num_vertices);
         
         while(pb_busy());
         

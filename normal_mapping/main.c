@@ -15,7 +15,6 @@
 
 #include "../common/input.h"
 #include "../common/math.h"
-#include "../common/draw.h"
 
 XguMatrix4x4 m_model, m_view, m_proj;
 
@@ -175,7 +174,7 @@ int main(void) {
         xgux_set_attrib_pointer(XGU_NORMAL_ARRAY, XGU_FLOAT, 3, sizeof(alloc_vertices[0]), &alloc_vertices[0].normal[0]);
         
         // Begin drawing triangles
-        draw_vertex_arrays(XGU_TRIANGLES, num_vertices);
+        xgux_draw_arrays(XGU_TRIANGLES, 0, num_vertices);
         
         while(pb_busy());
         
