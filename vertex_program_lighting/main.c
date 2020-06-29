@@ -82,7 +82,7 @@ int main(void) {
     mtx_view_screen(&m_proj, (float)width/(float)height, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 10000.0f);
     
     XguMatrix4x4 m_viewport;
-    mtx_viewport(&m_viewport, 0, 0, width, height, 0, 65536.0f);
+    mtx_viewport(&m_viewport, 0, 0, width, height, 0, (float)0xFFFF);
     mtx_multiply(&m_proj, m_proj, m_viewport);
     
     input_init();
