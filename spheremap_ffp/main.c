@@ -1,15 +1,6 @@
 #include <hal/video.h>
-#include <xboxkrnl/xboxkrnl.h>
-
-#include <pbkit/pbkit.h>
 #include <xgu/xgu.h>
 #include <xgu/xgux.h>
-
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <strings.h>
 
 #include "../common/input.h"
 #include "../common/math.h"
@@ -50,12 +41,10 @@ int main(void) {
     int width = pb_back_buffer_width();
     int height = pb_back_buffer_height();
     
-    /* Setup fragment shader */
     uint32_t *p = pb_begin();
     #include "combiner.inl"
     pb_end(p);
     
-    // Process texture/vertices
     alloc_texture = MmAllocateContiguousMemoryEx(texture_pitch * texture_height, 0, 0x03FFAFFF, 0, PAGE_WRITECOMBINE | PAGE_READWRITE);
     memcpy(alloc_texture, texture_rgba, sizeof(texture_rgba));
     
@@ -77,17 +66,14 @@ int main(void) {
         
         v_obj_rot.y += 0.02f;
         
-        // Model matrix
         mtx_identity(&m_model);
         mtx_rotate(&m_model, m_model, v_obj_rot);
         mtx_scale(&m_model, m_model, v_obj_scale);
         mtx_translate(&m_model, m_model, v_obj_pos);
         
-        // Create view matrix (our camera is static)
         mtx_identity(&m_view);
         mtx_world_view(&m_view, v_cam_pos, v_cam_rot);
         
-        // Texture matrix
         mtx_identity(&m_tex);
         mtx_rotate(&m_tex, m_tex, v_tex_rot);
         mtx_scale(&m_tex, m_tex, v_tex_scale);
@@ -104,7 +90,6 @@ int main(void) {
         
         p = xgu_set_depth_test_enable(p, false);
         
-        // Texture stage 0
         p = xgu_set_texture_offset(p, 0, (void *)((uint32_t)alloc_texture & 0x03ffffff));
         p = xgu_set_texture_format(p, 0, 2, 0, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8B8G8R8, 1, 0, 0, 0);
         p = xgu_set_texture_address(p, 0, XGU_CLAMP_TO_BORDER, false, XGU_CLAMP_TO_BORDER, false, XGU_CLAMP_TO_EDGE, false, false);
@@ -113,16 +98,13 @@ int main(void) {
         p = xgu_set_texture_image_rect(p, 0, texture_width, texture_height);
         p = xgu_set_texture_filter(p, 0, 0, XGU_TEXTURE_CONVOLUTION_GAUSSIAN, 4, 4, 0, 0, 0, 0);
         
-        // Disable all other texture stages
         p = xgu_set_texture_control0(p, 1, 0, 0, 0);
         p = xgu_set_texture_control0(p, 2, 0, 0, 0);
         p = xgu_set_texture_control0(p, 3, 0, 0, 0);
         
-        // projection matrix
         mtx_identity(&m_proj);
         mtx_view_screen(&m_proj, (float)width/(float)height, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 10000.0f);
         
-        // Create viewport matrix, combine with projection
         XguMatrix4x4 m_viewport;
         mtx_viewport(&m_viewport, 0, 0, width, height, 0, 65536.0f);
         mtx_multiply(&m_proj, m_proj, m_viewport);
@@ -144,37 +126,27 @@ int main(void) {
         
         p = xgu_set_transform_execution_mode(p, XGU_FIXED, XGU_RANGE_MODE_PRIVATE);
         
-        // Modelview matrix
         XguMatrix4x4 m_mv;
         mtx_multiply(&m_mv, m_model, m_view);
         
-        // MVP matrix
         XguMatrix4x4 m_mvp;
         mtx_multiply(&m_mvp, m_mv, m_proj);
         
-        // Transposed projection matrix
         XguMatrix4x4 mt_p;
         mtx_transpose(&mt_p, m_proj);
         
-        // Transposed MV matrix
+        XguMatrix4x4 m_mv_inv;
+        mtx_inverse(&m_mv_inv, m_mv);
+        
         XguMatrix4x4 mt_mv;
         mtx_transpose(&mt_mv, m_mv);
         
-        // Inverse of transposed MV matrix
-        XguMatrix4x4 mt_mv_inv;
-        mtx_inverse(&mt_mv_inv, mt_mv);
-        
-        // Transposed inverse of transposed MV matrix
-        XguMatrix4x4 mt_mv_inv_t;
-        mtx_transpose(&mt_mv_inv_t, mt_mv_inv);
-        
-        // Transposed MVP matrix
         XguMatrix4x4 mt_mvp;
         mtx_transpose(&mt_mvp, m_mvp);
         
         for(int i = 0; i < XGU_WEIGHT_COUNT; i++) {
             p = xgu_set_model_view_matrix(p, i, mt_mv.f);
-            p = xgu_set_inverse_model_view_matrix(p, i, mt_mv_inv_t.f);
+            p = xgu_set_inverse_model_view_matrix(p, i, m_mv_inv.f);
         }
         
         p = xgu_set_projection_matrix(p, mt_p.f);
@@ -195,13 +167,13 @@ int main(void) {
         xgux_draw_arrays(XGU_TRIANGLES, 0, num_vertices);
         
         while(pb_busy());
-        
-        // Swap buffers (if we can)
-        while (pb_finished());
+        while(pb_finished());
     }
-
-    // Unreachable cleanup code
+    
+    input_free();
+    
     MmFreeContiguousMemory(alloc_vertices);
+    
     pb_show_debug_screen();
     pb_kill();
     return 0;

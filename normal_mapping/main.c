@@ -1,28 +1,21 @@
 #include <hal/video.h>
-#include <xboxkrnl/xboxkrnl.h>
-
-#include <pbkit/pbkit.h>
 #include <xgu/xgu.h>
 #include <xgu/xgux.h>
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <strings.h>
-
-#include "tex_normal.h"
-
 #include "../common/input.h"
 #include "../common/math.h"
+
+#include "tex_normal.h"
 
 XguMatrix4x4 m_model, m_view, m_proj;
 
 XguVec4 v_obj_rot   = {  0,   0,   0,  1 };
 XguVec4 v_obj_scale = {  1,   1,   1,  1 };
 XguVec4 v_obj_pos   = {  0,   0,   0,  1 };
+
 XguVec4 v_cam_loc   = {  0,   0,   2,  1 };
 XguVec4 v_cam_rot   = {  0,   0,   0,  1 };
+
 XguVec4 v_light_pos = {  0,   0, 1.5,  1 };
 
 typedef struct Vertex {
@@ -38,35 +31,27 @@ static uint32_t *alloc_tex_normal;
 static uint32_t  num_vertices;
 
 static void init_shader(void) {
-    // Setup vertex shader
     XguTransformProgramInstruction vs_program[] = {
         #include "vshader.inl"
     };
     
     uint32_t *p = pb_begin();
     
-    // Set run address of shader
     p = xgu_set_transform_program_start(p, 0);
     
-    // Set execution mode
     p = xgu_set_transform_execution_mode(p, XGU_PROGRAM, XGU_RANGE_MODE_PRIVATE);
     p = xgu_set_transform_program_cxt_write_enable(p, false);
     
-    // Set cursor and begin copying program
     p = xgu_set_transform_program_load(p, 0);
+    
+    // FIXME: wait for xgu_set_transform_program to get fixed
+    for(int i = 0; i < sizeof(vs_program)/16; i++) {
+        p = push_command(p, NV097_SET_TRANSFORM_PROGRAM, 4);
+        p = push_parameters(p, &vs_program[i].i[0], 4);
+    }
     
     pb_end(p);
     
-    // Copy program instructions (16-bytes each)
-    // FIXME: xgu_set_transform_program won't work here? Why?
-    for(int i = 0; i < sizeof(vs_program)/16; i++) {
-        p = pb_begin();
-        p = push_command(p, NV097_SET_TRANSFORM_PROGRAM, 4);
-        p = push_parameters(p, &vs_program[i].i[0], 4);
-        pb_end(p);
-    }
-    
-    // Setup fragment shader
     p = pb_begin();
     #include "combiner.inl"
     pb_end(p);
@@ -83,7 +68,6 @@ int main(void) {
     
     init_shader();
     
-    // Process texture/vertices
     alloc_tex_normal = MmAllocateContiguousMemoryEx(tex_normal_pitch * tex_normal_height, 0, 0x03FFAFFF, 0, PAGE_WRITECOMBINE | PAGE_READWRITE);
     memcpy(alloc_tex_normal, tex_normal_rgba, sizeof(tex_normal_rgba));
     
@@ -91,7 +75,6 @@ int main(void) {
     memcpy(alloc_vertices, vertices, sizeof(vertices));
     num_vertices = sizeof(vertices)/sizeof(vertices[0]);
     
-    // Pre-calculate view/proj matrices
     mtx_identity(&m_view);
     mtx_world_view(&m_view, v_cam_loc, v_cam_rot);
     
@@ -140,7 +123,6 @@ int main(void) {
         
         p = xgu_set_front_face(p, XGU_FRONT_CCW);
         
-        // Texture stage 0 (Normal map)
         p = xgu_set_texture_offset(p, 0, (void *)((uint32_t)alloc_tex_normal & 0x03ffffff));
         p = xgu_set_texture_format(p, 0, 2, 0, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8B8G8R8, 1, 0, 0, 0);
         p = xgu_set_texture_control0(p, 0, 1, 0, 0);
@@ -148,7 +130,6 @@ int main(void) {
         p = xgu_set_texture_image_rect(p, 0, tex_normal_width, tex_normal_height);
         p = xgu_set_texture_filter(p, 0, 0, XGU_TEXTURE_CONVOLUTION_GAUSSIAN, 4, 4, 0, 0, 0, 0);
         
-        // Set shader constant position to C0 and pass constants
         p = xgu_set_transform_constant_load(p, 96);
         
         p = xgu_set_transform_constant(p, (XguVec4 *)&m_model, 4);
@@ -158,28 +139,24 @@ int main(void) {
         p = xgu_set_transform_constant(p, &v_cam_loc, 1);
         p = xgu_set_transform_constant(p, &v_light_pos, 1);
         
-        // Send shader constants
         XguVec4 constants = {0, 2, 1, 0};
         p = xgu_set_transform_constant(p, &constants, 1);
         
-        // Clear all attributes
-        for(int i = 0; i < 16; i++) {
-            p = xgu_set_vertex_data_array_format(p, i, XGU_FLOAT, 0, 0);
-        }
         pb_end(p);
         
-        // Setup vertex attributes (Note: nv2a_reg.h vertex attribute impls have wrong values, so it's manually set for now)
+        // Clear all attributes
+        for(int i = 0; i < XGU_ATTRIBUTE_COUNT; i++) {
+            xgux_set_attrib_pointer(i, XGU_FLOAT, 0, 0, NULL);
+        }
+        
         xgux_set_attrib_pointer(XGU_VERTEX_ARRAY, XGU_FLOAT, 3, sizeof(alloc_vertices[0]), &alloc_vertices[0].pos[0]);
-        xgux_set_attrib_pointer(8 /*XGU_TEXCOORD0_ARRAY*/, XGU_FLOAT, 2, sizeof(alloc_vertices[0]), &alloc_vertices[0].texcoord[0]);
+        xgux_set_attrib_pointer(8 /*XGU_TEXCOORD0_ARRAY*/, XGU_FLOAT, 2, sizeof(alloc_vertices[0]), &alloc_vertices[0].texcoord[0]); // FIXME: Wrong enum value
         xgux_set_attrib_pointer(XGU_NORMAL_ARRAY, XGU_FLOAT, 3, sizeof(alloc_vertices[0]), &alloc_vertices[0].normal[0]);
         
-        // Begin drawing triangles
         xgux_draw_arrays(XGU_TRIANGLES, 0, num_vertices);
         
         while(pb_busy());
-        
-        // Swap buffers
-        while (pb_finished());
+        while(pb_finished());
     }
     
     input_free();
