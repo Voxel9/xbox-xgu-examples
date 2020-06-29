@@ -13,7 +13,7 @@ XguVec4 v_obj_rot   = {  0,   0,   0,  1 };
 XguVec4 v_obj_scale = {  1,   1,   1,  1 };
 XguVec4 v_obj_pos   = {  0,   0,   0,  1 };
 
-XguVec4 v_cam_loc   = {  0,   0, 1.5,  1 };
+XguVec4 v_cam_pos   = {  0,   0, 1.5,  1 };
 XguVec4 v_cam_rot   = {  0,   0,   0,  1 };
 
 XguVec4 v_light_dir = {  0,   0,   1,  1 };
@@ -68,6 +68,7 @@ int main(void) {
     
     init_shader();
     
+    // Allocate texture and vertices memory
     alloc_texture = MmAllocateContiguousMemoryEx(texture_pitch * texture_height, 0, 0x03FFAFFF, 0, PAGE_WRITECOMBINE | PAGE_READWRITE);
     memcpy(alloc_texture, texture_rgba, sizeof(texture_rgba));
     
@@ -75,8 +76,9 @@ int main(void) {
     memcpy(alloc_vertices, vertices, sizeof(vertices));
     num_vertices = sizeof(vertices)/sizeof(vertices[0]);
     
+    // View/Projection/Viewport matrices aren't changed, so we just set them once
     mtx_identity(&m_view);
-    mtx_world_view(&m_view, v_cam_loc, v_cam_rot);
+    mtx_world_view(&m_view, v_cam_pos, v_cam_rot);
     
     mtx_identity(&m_proj);
     mtx_view_screen(&m_proj, (float)width/(float)height, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 10000.0f);
@@ -97,13 +99,6 @@ int main(void) {
         pb_reset();
         pb_target_back_buffer();
         
-        v_obj_rot.y += 0.01f;
-        
-        mtx_identity(&m_model);
-        mtx_rotate(&m_model, m_model, v_obj_rot);
-        mtx_scale(&m_model, m_model, v_obj_scale);
-        mtx_translate(&m_model, m_model, v_obj_pos);
-        
         while(pb_busy());
         
         uint32_t *p = pb_begin();
@@ -113,20 +108,30 @@ int main(void) {
         
         p = xgu_set_front_face(p, XGU_FRONT_CCW);
         
+        // Texture 0
         p = xgu_set_texture_offset(p, 0, (void *)((uint32_t)alloc_texture & 0x03ffffff));
-        p = xgu_set_texture_format(p, 0, 2, 0, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8B8G8R8, 1, 0, 0, 0);
-        p = xgu_set_texture_control0(p, 0, 1, 0, 0);
+        p = xgu_set_texture_format(p, 0, 2, false, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8B8G8R8, 1, 0, 0, 0);
+        p = xgu_set_texture_control0(p, 0, true, 0, 0);
         p = xgu_set_texture_control1(p, 0, texture_pitch);
         p = xgu_set_texture_image_rect(p, 0, texture_width, texture_height);
-        p = xgu_set_texture_filter(p, 0, 0, XGU_TEXTURE_CONVOLUTION_GAUSSIAN, 4, 4, 0, 0, 0, 0);
+        p = xgu_set_texture_filter(p, 0, 0, XGU_TEXTURE_CONVOLUTION_GAUSSIAN, 4, 4, false, false, false, false);
         
+        // Give mesh a bit of rotation
+        v_obj_rot.y += 0.01f;
+        
+        mtx_identity(&m_model);
+        mtx_rotate(&m_model, m_model, v_obj_rot);
+        mtx_scale(&m_model, m_model, v_obj_scale);
+        mtx_translate(&m_model, m_model, v_obj_pos);
+        
+        // Pass constants to the vertex shader program
         p = xgu_set_transform_constant_load(p, 96);
         
         p = xgu_set_transform_constant(p, (XguVec4 *)&m_model, 4);
         p = xgu_set_transform_constant(p, (XguVec4 *)&m_view, 4);
         p = xgu_set_transform_constant(p, (XguVec4 *)&m_proj, 4);
         
-        p = xgu_set_transform_constant(p, &v_cam_loc, 1);
+        p = xgu_set_transform_constant(p, &v_cam_pos, 1);
         p = xgu_set_transform_constant(p, &v_light_dir, 1);
         
         XguVec4 constants = {0, 0, 0, 0};
