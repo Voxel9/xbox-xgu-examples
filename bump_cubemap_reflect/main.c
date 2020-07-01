@@ -124,7 +124,7 @@ int main(void) {
         p = xgu_set_texture_offset(p, 3, (void *)((uint32_t)alloc_tex_cube & 0x03ffffff));
         p = xgu_set_texture_format(p, 3, 2, true, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_X8R8G8B8_SWIZZLED, 1, 0, 0, 0);
         p = xgu_set_texture_control0(p, 3, true, 0, 0);
-        p = xgu_set_texture_control1(p, 3, tex_cube_pitch);
+        p = xgu_set_texture_control1(p, 3, cubemap_res*4);
         p = xgu_set_texture_image_rect(p, 3, cubemap_res, cubemap_res);
         p = xgu_set_texture_filter(p, 3, 0, XGU_TEXTURE_CONVOLUTION_GAUSSIAN, 4, 4, false, false, false, false);
         
