@@ -1,0 +1,46 @@
+struct vIn {
+    float3 norm : NORMAL;
+    float2 tex  : TEXCOORD;
+    float3 pos  : POSITION;
+};
+
+struct vOut {
+    float4 pos  : POSITION;
+    float2 tex0 : TEXCOORD0;
+    float4 tex1 : TEXCOORD1;
+    float4 tex2 : TEXCOORD2;
+    float4 tex3 : TEXCOORD3;
+};
+
+vOut main(
+    vIn              I,
+    uniform float4x4 m_model,
+    uniform float4x4 m_view,
+    uniform float4x4 m_proj,
+    uniform float4   camera_pos
+    )
+{
+    vOut   result;
+    
+    // Transform position
+    float4 pos = mul(float4(I.pos.xyz, 1.0), m_model);
+    
+    // Inverse and transpose the modelview matrix, and keep the upper 3x3
+    float4x4 modelview = mul(m_model, m_view);
+    float4x4 inv_modelview = inverse(modelview);
+    float4x4 t_inv_modelview = transpose(inv_modelview);
+    
+    // Transform pos to screen space
+    pos = mul(pos, m_view);
+    pos = mul(pos, m_proj);
+    pos.xyz = pos.xyz / pos.w;
+    
+    result.pos  = pos;
+    result.tex0 = I.tex;
+    
+    result.tex1 = float4(t_inv_modelview._11_12_13, camera_pos.x);
+    result.tex2 = float4(t_inv_modelview._21_22_23, camera_pos.y);
+    result.tex3 = float4(t_inv_modelview._31_32_33, camera_pos.z);
+    
+    return result;
+}
