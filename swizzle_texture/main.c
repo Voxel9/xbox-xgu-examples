@@ -116,11 +116,10 @@ int main(void) {
         // Texture 0
         p = xgu_set_texture_offset(p, 0, (void *)((uint32_t)alloc_texture & 0x03ffffff));
         p = xgu_set_texture_format(p, 0, 2, false, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8B8G8R8_SWIZZLED, 1, 8, 8, 0);
-        p = xgu_set_texture_control0(p, 0, true, 0, 0);
-        p = xgu_set_texture_control1(p, 0, texture_pitch);
-        p = xgu_set_texture_image_rect(p, 0, texture_width, texture_height);
         p = xgu_set_texture_address(p, 0, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, false);
-        p = xgu_set_texture_filter(p, 0, 0, XGU_TEXTURE_CONVOLUTION_GAUSSIAN, 4, 4, false, false, false, false);
+        p = xgu_set_texture_control0(p, 0, true, 0, 0);
+        // p = xgu_set_texture_control1(p, 0, texture_pitch);
+        p = xgu_set_texture_filter(p, 0, 0, XGU_TEXTURE_CONVOLUTION_QUINCUNX, 4, 4, false, false, false, false);
         
         // Give mesh a bit of rotation
         v_obj_rot.y += 0.01f;
