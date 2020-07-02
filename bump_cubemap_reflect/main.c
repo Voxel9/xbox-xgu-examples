@@ -7,7 +7,7 @@
 
 #include "swizzle.h"
 
-// #include "tex_cube.h"
+#include "tex_cube.h"
 #include "tex_normal.h"
 
 XguMatrix4x4 m_model, m_view, m_proj;
@@ -16,7 +16,7 @@ XguVec4 v_obj_rot   = {  0,   0,   0,  1 };
 XguVec4 v_obj_scale = {  1,   1,   1,  1 };
 XguVec4 v_obj_pos   = {  0,   0,   0,  1 };
 
-XguVec4 v_cam_pos   = {  0,   0,  40,  1 };
+XguVec4 v_cam_pos   = {  0,   0, 1.5,  1 };
 XguVec4 v_cam_rot   = {  0,   0,   0,  1 };
 
 typedef struct Vertex {
@@ -76,14 +76,8 @@ int main(void) {
     swizzle_rect(tex_normal_rgba, tex_normal_width, tex_normal_height, alloc_tex_normal, tex_normal_pitch, bpp/8);
     
     // Cube texture
-    int tex_cube_sides = 6;
-    int tex_cube_width = 1;
-    int tex_cube_height = 1;
-    int tex_cube_pitch = tex_cube_width * 4;
-    uint32_t tex_cube_argb[] = {0x00FF0000, 0x00770000, 0x0000FF00, 0x00007700, 0x000000FF, 0x00000077 };
-    
-    alloc_tex_cube = MmAllocateContiguousMemoryEx(tex_cube_sides * tex_cube_pitch * tex_cube_height, 0, 0x03FFAFFF, 0, PAGE_WRITECOMBINE | PAGE_READWRITE);
-    swizzle_rect((uint8_t *)tex_cube_argb, tex_cube_width, tex_cube_height, alloc_tex_cube, tex_cube_pitch, 4);
+    alloc_tex_cube = MmAllocateContiguousMemoryEx(tex_cube_pitch * tex_cube_height, 0, 0x03FFAFFF, 0, PAGE_WRITECOMBINE | PAGE_READWRITE);
+    swizzle_rect(tex_cube_rgba, tex_cube_width, tex_cube_height, alloc_tex_cube, tex_cube_pitch, 4);
     
     alloc_vertices = MmAllocateContiguousMemoryEx(sizeof(vertices), 0, 0x03FFAFFF, 0, PAGE_WRITECOMBINE | PAGE_READWRITE);
     memcpy(alloc_vertices, vertices, sizeof(vertices));
@@ -129,7 +123,7 @@ int main(void) {
         
         // Texture 3 (Cube texture)
         p = xgu_set_texture_offset(p, 3, (void *)((uint32_t)alloc_tex_cube & 0x03ffffff)); 
-        p = xgu_set_texture_format(p, 3, 2, true, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8R8G8B8_SWIZZLED, 1, 0, 0, 0);
+        p = xgu_set_texture_format(p, 3, 2, true, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8R8G8B8_SWIZZLED, 1, 8, 8, 0);
         p = xgu_set_texture_address(p, 0, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, false);
         p = xgu_set_texture_control0(p, 3, true, 0, 0);
         p = xgu_set_texture_filter(p, 3, 0, XGU_TEXTURE_CONVOLUTION_QUINCUNX, 2, 2, false, false, false, false);

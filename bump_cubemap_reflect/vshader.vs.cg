@@ -7,9 +7,9 @@ struct vIn {
 struct vOut {
     float4 pos  : POSITION;
     float2 tex0 : TEXCOORD0;
-    float4 tex1 : TEXCOORD1;
-    float4 tex2 : TEXCOORD2;
-    float4 tex3 : TEXCOORD3;
+    // float4 tex1 : TEXCOORD1;
+    // float4 tex2 : TEXCOORD2;
+    float2 tex3 : TEXCOORD3;
 };
 
 vOut main(
@@ -38,9 +38,11 @@ vOut main(
     result.pos  = pos;
     result.tex0 = I.tex;
     
-    result.tex1 = float4(t_inv_modelview._11_12_13, camera_pos.x);
-    result.tex2 = float4(t_inv_modelview._21_22_23, camera_pos.y);
-    result.tex3 = float4(t_inv_modelview._31_32_33, camera_pos.z);
+    // result.tex1 = float4(t_inv_modelview._11_12_13, camera_pos.x);
+    // result.tex2 = float4(t_inv_modelview._21_22_23, camera_pos.y);
+    // result.tex3 = float4(t_inv_modelview._31_32_33, camera_pos.z);
+    
+    result.tex3 = I.tex;
     
     return result;
 }
