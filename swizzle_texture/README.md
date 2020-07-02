@@ -1,8 +1,8 @@
-# Swizzle Texture (Not finished)
+# Swizzle Texture
 
 Demonstrates the use of swizzle textures
 
 Note: swizzle.c/h are licensed under LGPL.
 
 ## Screenshot
-Screenshot here.
+![swizzle_texture](/_screenshots/vp_lighting.png)

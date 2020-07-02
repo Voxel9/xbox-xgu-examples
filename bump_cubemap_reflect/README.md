@@ -4,5 +4,7 @@ Demonstrates the use of normal maps, cubemaps and view direction to create a bum
 
 **NOTE:** Currently requires fp20compiler changes that are not yet public. However, I've commented in the register combiner file which combine modes are emitted from the compiler if you want to add them in yourself.
 
+Note: swizzle.c/h are licensed under LGPL.
+
 ## Screenshot
 Screenshot here.
