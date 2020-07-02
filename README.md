@@ -9,4 +9,5 @@ _Hopefully_, this is only a temporary workaround and xgu functions get moved to 
 Press the start button in any sample to return to the dashboard.
 
 ## License
-CC0 1.0 Universal
+CC0 1.0 Universal.
+Some examples may also use code under other licenses, which are highlighted in their accompanying README file.
