@@ -7,9 +7,9 @@ struct vIn {
 struct vOut {
     float4 pos  : POSITION;
     float2 tex0 : TEXCOORD0;
-    // float4 tex1 : TEXCOORD1;
-    // float4 tex2 : TEXCOORD2;
-    float3 tex3 : TEXCOORD3;
+    float4 tex1 : TEXCOORD1;
+    float4 tex2 : TEXCOORD2;
+    float4 tex3 : TEXCOORD3;
 };
 
 vOut main(
@@ -28,7 +28,14 @@ vOut main(
     // Inverse and transpose the modelview matrix, and keep the upper 3x3
     float4x4 modelview = mul(m_model, m_view);
     float4x4 inv_modelview = inverse(modelview);
-    float4x4 t_inv_modelview = transpose(inv_modelview);
+    float3x3 t_inv_modelview = (float3x3)transpose(inv_modelview);
+    
+    // Calculate view and normal vectors
+    float3 eyeDir = pos.xyz - camera_pos.xyz;
+    float3 normalDir = normalize(mul(float4(I.norm, 0.0), inv_modelview).xyz);
+    
+    // Calculate reflection vector, which is passed to the pixel combiner
+    float3 reflectDir = reflect(eyeDir, normalDir);
     
     // Transform pos to screen space
     pos = mul(pos, m_view);
@@ -38,11 +45,9 @@ vOut main(
     result.pos  = pos;
     result.tex0 = I.tex;
     
-    // result.tex1 = float4(t_inv_modelview._11_12_13, camera_pos.x);
-    // result.tex2 = float4(t_inv_modelview._21_22_23, camera_pos.y);
-    // result.tex3 = float4(t_inv_modelview._31_32_33, camera_pos.z);
-    
-    result.tex3 = I.pos.xyz;
+    result.tex1 = float4(t_inv_modelview._11_12_13, reflectDir.x);
+    result.tex2 = float4(t_inv_modelview._21_22_23, reflectDir.y);
+    result.tex3 = float4(t_inv_modelview._31_32_33, reflectDir.z);
     
     return result;
 }

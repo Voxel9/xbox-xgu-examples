@@ -16,7 +16,7 @@ XguVec4 v_obj_rot   = {  0,   0,   0,  1 };
 XguVec4 v_obj_scale = {  1,   1,   1,  1 };
 XguVec4 v_obj_pos   = {  0,   0,   0,  1 };
 
-XguVec4 v_cam_pos   = {  0,   0, 1.5,  1 };
+XguVec4 v_cam_pos   = {  0,   0,1.25,  1 };
 XguVec4 v_cam_rot   = {  0,   0,   0,  1 };
 
 typedef struct Vertex {
@@ -114,7 +114,7 @@ int main(void) {
         
         uint32_t *p = pb_begin();
         
-        p = xgu_set_color_clear_value(p, 0xff0000ff);
+        p = xgu_set_color_clear_value(p, 0xff045219);
         p = xgu_clear_surface(p, XGU_CLEAR_Z | XGU_CLEAR_STENCIL | XGU_CLEAR_COLOR);
         
         p = xgu_set_front_face(p, XGU_FRONT_CCW);
@@ -133,8 +133,8 @@ int main(void) {
         p = xgu_set_texture_control0(p, 3, true, 0, 0);
         p = xgu_set_texture_filter(p, 3, 0, XGU_TEXTURE_CONVOLUTION_QUINCUNX, 2, 2, false, false, false, false);
         
-        v_cam_pos.x = 1.5f * sin(Yrotate);
-        v_cam_pos.z = 1.5f * cos(Yrotate);
+        v_cam_pos.x = 1.25f * sin(Yrotate);
+        v_cam_pos.z = 1.25f * cos(Yrotate);
         
         v_cam_rot.y = Yrotate;
         
@@ -151,7 +151,7 @@ int main(void) {
         
         p = xgu_set_transform_constant(p, &v_cam_pos, 1);
         
-        XguVec4 constants = {0, 0, 0, 0};
+        XguVec4 constants = {1, -1, 0, 2};
         p = xgu_set_transform_constant(p, &constants, 1);
         
         pb_end(p);
