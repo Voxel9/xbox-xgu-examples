@@ -83,8 +83,11 @@ int main(void) {
     memcpy(alloc_vertices, vertices, sizeof(vertices));
     num_vertices = sizeof(vertices)/sizeof(vertices[0]);
     
-    mtx_identity(&m_view);
-    mtx_world_view(&m_view, v_cam_pos, v_cam_rot);
+    // Model stays where it is in this example; instead the view orbits around it
+    mtx_identity(&m_model);
+    mtx_rotate(&m_model, m_model, v_obj_rot);
+    mtx_scale(&m_model, m_model, v_obj_scale);
+    mtx_translate(&m_model, m_model, v_obj_pos);
     
     mtx_identity(&m_proj);
     mtx_view_screen(&m_proj, (float)width/(float)height, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 10000.0f);
@@ -94,6 +97,8 @@ int main(void) {
     mtx_multiply(&m_proj, m_proj, m_viewport);
     
     input_init();
+    
+    float Yrotate = 0;
 
     while(1) {
         input_poll();
@@ -123,17 +128,20 @@ int main(void) {
         
         // Texture 3 (Cube texture)
         p = xgu_set_texture_offset(p, 3, (void *)((uint32_t)alloc_tex_cube & 0x03ffffff)); 
-        p = xgu_set_texture_format(p, 3, 2, true, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8R8G8B8_SWIZZLED, 1, 8, 8, 0);
+        p = xgu_set_texture_format(p, 3, 2, true, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8B8G8R8_SWIZZLED, 1, 8, 8, 0);
         p = xgu_set_texture_address(p, 0, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, false);
         p = xgu_set_texture_control0(p, 3, true, 0, 0);
         p = xgu_set_texture_filter(p, 3, 0, XGU_TEXTURE_CONVOLUTION_QUINCUNX, 2, 2, false, false, false, false);
         
-        v_obj_rot.y += 0.01f;
+        v_cam_pos.x = 1.5f * sin(Yrotate);
+        v_cam_pos.z = 1.5f * cos(Yrotate);
         
-        mtx_identity(&m_model);
-        mtx_rotate(&m_model, m_model, v_obj_rot);
-        mtx_scale(&m_model, m_model, v_obj_scale);
-        mtx_translate(&m_model, m_model, v_obj_pos);
+        v_cam_rot.y = Yrotate;
+        
+        Yrotate += 0.015f;
+        
+        mtx_identity(&m_view);
+        mtx_world_view(&m_view, v_cam_pos, v_cam_rot);
         
         p = xgu_set_transform_constant_load(p, 96);
         

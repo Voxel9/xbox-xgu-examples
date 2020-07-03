@@ -9,7 +9,7 @@ struct vOut {
     float2 tex0 : TEXCOORD0;
     // float4 tex1 : TEXCOORD1;
     // float4 tex2 : TEXCOORD2;
-    float2 tex3 : TEXCOORD3;
+    float3 tex3 : TEXCOORD3;
 };
 
 vOut main(
@@ -42,7 +42,7 @@ vOut main(
     // result.tex2 = float4(t_inv_modelview._21_22_23, camera_pos.y);
     // result.tex3 = float4(t_inv_modelview._31_32_33, camera_pos.z);
     
-    result.tex3 = I.tex;
+    result.tex3 = I.pos.xyz;
     
     return result;
 }
