@@ -114,6 +114,12 @@ int main(void) {
         
         // Texture 0
         p = xgu_set_texture_offset(p, 0, (void *)((uint32_t)alloc_texture & 0x03ffffff));
+        // 9th and 10th args represent texture power-of-2 shift.
+        // If texture width/height are 256 (1 << 8), args should both be 8,
+        // If texture width/height are 128 (1 << 7), args should both be 7,
+        // And so on...
+        // Width/height can be different, so long as they are still power-of-2,
+        // (e.g. With a 64x128 texture: U shift arg = 6, V shift arg = 7)
         p = xgu_set_texture_format(p, 0, 2, false, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8B8G8R8_SWIZZLED, 1, 8, 8, 0);
         p = xgu_set_texture_address(p, 0, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, false);
         p = xgu_set_texture_control0(p, 0, true, 0, 0);
