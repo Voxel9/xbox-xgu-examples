@@ -4,8 +4,7 @@
 
 #include "../common/input.h"
 #include "../common/math.h"
-
-#include "swizzle.h"
+#include "../common/swizzle.h"
 
 #include "tex_cube.h"
 #include "tex_normal.h"

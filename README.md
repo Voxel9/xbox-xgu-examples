@@ -10,4 +10,5 @@ Press the start button in any sample to return to the dashboard.
 
 ## License
 CC0 1.0 Universal.
-Some examples may also use code under other licenses, which are highlighted in their accompanying README file.
+
+Note: `common/swizzle.c` and `common/swizzle.h` are licensed under LGPL.
