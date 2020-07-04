@@ -33,6 +33,10 @@ vOut main(
     float3 T = normalize(mul(t_inv_modelview, I.tang));
     float3 N = normalize(mul(t_inv_modelview, I.norm));
     float3 B = cross(N, T);
+    
+    // Ensure orthonormalization
+    T = cross(B, N);
+    
     float3x3 TBN = float3x3(T, B, N);
     
     // Construct final lookup matrix
