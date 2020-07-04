@@ -7,4 +7,4 @@ Demonstrates the use of a normal map, cubemap and reflection vector to create a 
 Note: swizzle.c/h are licensed under LGPL.
 
 ## Screenshot
-Screenshot here.
+![bump_cubemap_reflect](/_screenshots/bump_cubemap_reflect.png)
