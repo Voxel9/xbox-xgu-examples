@@ -27,7 +27,37 @@ typedef struct Vertex {
 
 #include "verts.h"
 
+// For tangents
+typedef struct Vector3 {
+    float x, y, z;
+} Vector3;
+
+// Math helper functions for calculating tangents
+void vec3_subtract(float *out, float *a, float *b) {
+    out[0] = a[0] - b[0];
+    out[1] = a[1] - b[1];
+    out[2] = a[2] - b[2];
+}
+
+void vec3_multiply(float *out, float *a, float *b) {
+    out[0] = a[0] * b[0];
+    out[1] = a[1] * b[1];
+    out[2] = a[2] * b[2];
+}
+
+void vec3_multiply_float(float *out, float *a, float b) {
+    out[0] = a[0] * b;
+    out[1] = a[1] * b;
+    out[2] = a[2] * b;
+}
+
+void vec2_subtract(float *out, float *a, float *b) {
+    out[0] = a[0] - b[0];
+    out[1] = a[1] - b[1];
+}
+
 static Vertex   *alloc_vertices;
+static Vector3  *alloc_tangents;
 static uint8_t  *alloc_tex_cube;
 static uint8_t  *alloc_tex_normal;
 static uint32_t  num_vertices;
@@ -82,6 +112,44 @@ int main(void) {
     alloc_vertices = MmAllocateContiguousMemoryEx(sizeof(vertices), 0, 0x03FFAFFF, 0, PAGE_WRITECOMBINE | PAGE_READWRITE);
     memcpy(alloc_vertices, vertices, sizeof(vertices));
     num_vertices = sizeof(vertices)/sizeof(vertices[0]);
+    
+    alloc_tangents = MmAllocateContiguousMemoryEx(num_vertices * sizeof(Vector3), 0, 0x03FFAFFF, 0, PAGE_WRITECOMBINE | PAGE_READWRITE);
+    
+    // Calculate vertex tangents
+    // TODO: Tidy this later!
+    for(int i = 0; i < num_vertices; i += 3) {
+        // Triangle edge deltas
+        float deltaPos1[3], deltaPos2[3];
+        vec3_subtract(deltaPos1, alloc_vertices[i+1].pos, alloc_vertices[i+0].pos);
+        vec3_subtract(deltaPos2, alloc_vertices[i+2].pos, alloc_vertices[i+0].pos);
+        
+        // UV deltas
+        float deltaUV1[2], deltaUV2[2];
+        vec2_subtract(deltaUV1, alloc_vertices[i+1].texcoord, alloc_vertices[i+0].texcoord);
+        vec2_subtract(deltaUV2, alloc_vertices[i+2].texcoord, alloc_vertices[i+0].texcoord);
+        
+        float r = 1.0f / (deltaUV1[0] * deltaUV2[1] - deltaUV1[1] * deltaUV2[0]);
+        
+        float mul_temp1[3], mul_temp2[3];
+        vec3_multiply_float(mul_temp1, deltaPos1, deltaUV2[1]);
+        vec3_multiply_float(mul_temp2, deltaPos2, deltaUV1[1]);
+        
+        float tangent[3];
+        vec3_subtract(tangent, mul_temp1, mul_temp2);
+        vec3_multiply_float(tangent, tangent, r);
+        
+        alloc_tangents[i+0].x = tangent[0];
+        alloc_tangents[i+0].y = tangent[1];
+        alloc_tangents[i+0].z = tangent[2];
+        
+        alloc_tangents[i+1].x = tangent[0];
+        alloc_tangents[i+1].y = tangent[1];
+        alloc_tangents[i+1].z = tangent[2];
+        
+        alloc_tangents[i+2].x = tangent[0];
+        alloc_tangents[i+2].y = tangent[1];
+        alloc_tangents[i+2].z = tangent[2];
+    }
     
     // Model stays where it is in this example; instead the view orbits around it
     mtx_identity(&m_model);
@@ -163,6 +231,7 @@ int main(void) {
         xgux_set_attrib_pointer(XGU_VERTEX_ARRAY, XGU_FLOAT, 3, sizeof(alloc_vertices[0]), &alloc_vertices[0].pos[0]);
         xgux_set_attrib_pointer(8 /*XGU_TEXCOORD0_ARRAY*/, XGU_FLOAT, 2, sizeof(alloc_vertices[0]), &alloc_vertices[0].texcoord[0]); // FIXME: Wrong enum value
         xgux_set_attrib_pointer(XGU_NORMAL_ARRAY, XGU_FLOAT, 3, sizeof(alloc_vertices[0]), &alloc_vertices[0].normal[0]);
+        xgux_set_attrib_pointer(9 /*XGU_TEXCOORD1_ARRAY*/, XGU_FLOAT, 3, sizeof(Vector3), &alloc_tangents[0].x); // FIXME: Wrong enum value
         
         xgux_draw_arrays(XGU_TRIANGLES, 0, num_vertices);
         
