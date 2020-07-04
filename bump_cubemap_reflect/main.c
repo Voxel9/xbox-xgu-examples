@@ -219,7 +219,7 @@ int main(void) {
         
         p = xgu_set_transform_constant(p, &v_cam_pos, 1);
         
-        XguVec4 constants = {1, -1, 0, 2};
+        XguVec4 constants = {1, -1, 0, 0};
         p = xgu_set_transform_constant(p, &constants, 1);
         
         pb_end(p);
