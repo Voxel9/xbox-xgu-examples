@@ -27,7 +27,8 @@ vOut main(
     float4 pos = mul(float4(I.pos.xyz, 1.0), m_model);
     
     // Inverse and transpose the modelview matrix, and keep the upper 3x3
-    float3x3 t_inv_modelview = (float3x3)transpose(inverse(m_model));
+    float4x4 modelview = mul(m_model, m_view);
+    float3x3 t_inv_modelview = (float3x3)transpose(inverse(modelview));
     
     // Construct TBN Matrix using tangent, bitangent and normal
     float3 T = normalize(mul(t_inv_modelview, I.tang));
