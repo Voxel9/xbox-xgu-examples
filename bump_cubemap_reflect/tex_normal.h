@@ -1,7 +1,7 @@
 const unsigned int tex_normal_width = 256;
 const unsigned int tex_normal_height = 256;
 const unsigned int tex_normal_pitch = 1024;
-const uint8_t tex_normal_rgba[] = {
+uint8_t tex_normal_rgba[] = {
 	0x7f, 0x7f, 0xfd, 0xff,
 	0x7e, 0x7e, 0xfe, 0xff,
 	0x81, 0x7e, 0xff, 0xff,

@@ -88,6 +88,20 @@ static void init_shader(void) {
     pb_end(p);
 }
 
+// Convert unsigned RGB (range 0 to 255) to signed (range -128 to 127)
+void RGBUnsignedToSigned(uint8_t *data, int width, int height) {
+    for(int i = 0; i < 4 * width * height; i += 4) {
+        int16_t r = data[i+0], g = data[i+1], b = data[i+2];
+        r -= 128;
+        g -= 128;
+        b -= 128;
+        
+        data[i+0] = r;
+        data[i+1] = g;
+        data[i+2] = b;
+    }
+}
+
 int main(void) {
     XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
     
@@ -103,6 +117,8 @@ int main(void) {
     
     // Normal map
     alloc_tex_normal = MmAllocateContiguousMemoryEx(tex_normal_pitch * tex_normal_height, 0, 0x03FFAFFF, 0, PAGE_WRITECOMBINE | PAGE_READWRITE);
+    
+    RGBUnsignedToSigned(tex_normal_rgba, tex_normal_width, tex_normal_height);
     swizzle_rect(tex_normal_rgba, tex_normal_width, tex_normal_height, alloc_tex_normal, tex_normal_pitch, bpp/8);
     
     // Cube texture
@@ -192,7 +208,7 @@ int main(void) {
         p = xgu_set_texture_format(p, 0, 2, false, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8B8G8R8_SWIZZLED, 1, 8, 8, 0);
         p = xgu_set_texture_address(p, 0, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, false);
         p = xgu_set_texture_control0(p, 0, true, 0, 0);
-        p = xgu_set_texture_filter(p, 0, 0, XGU_TEXTURE_CONVOLUTION_QUINCUNX, 2, 2, false, false, false, false);
+        p = xgu_set_texture_filter(p, 0, 0, XGU_TEXTURE_CONVOLUTION_QUINCUNX, 2, 2, true, true, true, false);
         
         // Texture 3 (Cube texture)
         p = xgu_set_texture_offset(p, 3, (void *)((uint32_t)alloc_tex_cube & 0x03ffffff)); 
