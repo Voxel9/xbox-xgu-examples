@@ -1,0 +1,20 @@
+!!TS1.0
+texture_2d();
+
+// TODO: Why can't any register, except const0 and tex0, be used
+// for transparency without causing the mesh to fully disappear?
+
+!!RC1.0
+const0 = (0,0,0,0.5);
+{
+    rgb {
+        col0 = tex0.rgb * col0.rgb;
+    }
+    
+    alpha {
+        col0 = const0;
+    }
+}
+
+out.rgb = unsigned(col0.rgb);
+out.a = unsigned(col0.a);
