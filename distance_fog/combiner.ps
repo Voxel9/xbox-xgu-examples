@@ -2,9 +2,6 @@
 texture_2d();
 
 !!RC1.0
-// TODO: Remove constant color and pass it through instead.
-// Also, find out if/how we can use fixed-function fog instead. No register combiners, no vertex shaders, just hardware registers.
-const0 = (0.61, 0.19, 0.11, 1.0);
 {
     rgb {
         spare0 = tex0.rgb;
@@ -15,5 +12,5 @@ const0 = (0.61, 0.19, 0.11, 1.0);
     }
 }
 
-out.rgb = lerp(fog.a, const0, color_sum);
+out.rgb = lerp(fog.a, fog, color_sum);
 out.a = unsigned(col0.a);

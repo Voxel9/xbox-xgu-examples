@@ -7,7 +7,7 @@ struct vIn {
 struct vOut {
     float4 pos  : POSITION;
     float2 tex0 : TEXCOORD0;
-    float  fog  : FOG; // TODO: Might not be necessary to do anything with fog in the vertex shader(?) Investigate.
+    float  fog  : FOG;
 };
 
 vOut main(
@@ -24,6 +24,7 @@ vOut main(
     float4 pos = mul(float4(I.pos.xyz, 1.0), m_model);
     pos = mul(pos, m_view);
     
+    // TODO: This might need additional calculations with fog planes
     float depth = pos.z;
     
     // Transform pos to screen space

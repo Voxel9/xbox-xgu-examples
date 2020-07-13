@@ -118,12 +118,10 @@ int main(void) {
         p = xgu_set_front_face(p, XGU_FRONT_CCW);
         
         // FIXME: Setting false causes solid-colored mesh (issues with shader)
-        p = xgu_set_fog_enable(p, true); 
+        p = xgu_set_fog_enable(p, true);
         
-        // TODO: These don't seem to impact anything either?
-        // (Probably because calculations are done in vert shader + pixel combiner)
         p = xgu_set_fog_mode(p, XGU_FOG_MODE_LINEAR);
-        p = xgu_set_fog_color(p, 0xff9c311c);
+        p = xgu_set_fog_color(p, 0xff1c319c);
         
         // Give user some freedom to control fog planes
         if(input_button_down(SDL_CONTROLLER_BUTTON_X))
@@ -136,8 +134,7 @@ int main(void) {
         else if(input_button_down(SDL_CONTROLLER_BUTTON_B))
             far_plane -= 2.0f;
         
-        // Calculate and set fog parameters
-        // (TODO: Do we have to do this? Any way to just pass near/far planes to hardware registers _and_ use programmable pipeline?)
+        // Calculate and set fog plane parameters in hardware
         float fog_near = far_plane/(far_plane - near_plane);
         float fog_far = -1.0f/(far_plane - near_plane);
         
