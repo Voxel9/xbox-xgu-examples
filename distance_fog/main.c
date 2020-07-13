@@ -94,9 +94,6 @@ int main(void) {
     
     // Calculated fog vars (passed to hardware)
     float fog_near, fog_far;
-    
-    // TODO: Doesn't seem to impact anything?
-    float fog_density = 0.5f;
 
     while(1) {
         input_poll();
@@ -128,7 +125,7 @@ int main(void) {
         p = xgu_set_fog_mode(p, XGU_FOG_MODE_LINEAR);
         p = xgu_set_fog_color(p, 0xff9c311c);
         
-        // Give user some freedom to control fog planes and density
+        // Give user some freedom to control fog planes
         if(input_button_down(SDL_CONTROLLER_BUTTON_X))
             near_plane += 2.0f;
         else if(input_button_down(SDL_CONTROLLER_BUTTON_Y))
@@ -139,17 +136,13 @@ int main(void) {
         else if(input_button_down(SDL_CONTROLLER_BUTTON_B))
             far_plane -= 2.0f;
         
-        if(input_button_down(SDL_CONTROLLER_BUTTON_LEFTSHOULDER))
-            fog_density += 0.2f;
-        else if(input_button_down(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
-            fog_density -= 0.2f;
-        
         // Calculate and set fog parameters
         // (TODO: Do we have to do this? Any way to just pass near/far planes to hardware registers _and_ use programmable pipeline?)
         float fog_near = far_plane/(far_plane - near_plane);
         float fog_far = -1.0f/(far_plane - near_plane);
         
-        p = xgu_set_fog_params(p, fog_near, fog_far, fog_density);
+        p = xgu_set_fog_start(p, fog_near);
+        p = xgu_set_fog_end(p, fog_far);
         
         // Texture 0
         p = xgu_set_texture_offset(p, 0, (void *)((uint32_t)alloc_texture & 0x03ffffff));
