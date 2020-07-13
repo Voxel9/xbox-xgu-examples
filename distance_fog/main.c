@@ -135,6 +135,7 @@ int main(void) {
             far_plane -= 2.0f;
         
         // Calculate and set fog plane parameters in hardware
+        // TODO: This appears to be wrong. Adjust formula to get correct fog scaling
         float fog_near = far_plane/(far_plane - near_plane);
         float fog_far = -1.0f/(far_plane - near_plane);
         
