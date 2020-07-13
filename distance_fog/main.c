@@ -129,7 +129,7 @@ int main(void) {
         else if(input_button_down(SDL_CONTROLLER_BUTTON_Y))
             near_plane -= 2.0f;
         
-        if(input_button_down(SDL_CONTROLLER_BUTTON_A)) 
+        if(input_button_down(SDL_CONTROLLER_BUTTON_A))
             far_plane += 2.0f;
         else if(input_button_down(SDL_CONTROLLER_BUTTON_B))
             far_plane -= 2.0f;
