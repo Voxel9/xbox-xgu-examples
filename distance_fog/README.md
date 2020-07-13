@@ -13,7 +13,6 @@ Currently depends on the following changes in this branch: https://github.com/Vo
 | D-pad up/down    | Move camera forward/back      |
 | A/B              | Increase/decrease far plane   |
 | X/Y              | Increase/decrease near plane  |
-| Black/White      | Increase/decrease fog density |
 
 ## Screenshot
 ![distance_fog](/_screenshots/distance_fog.png)
