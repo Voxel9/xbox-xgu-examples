@@ -1,0 +1,38 @@
+struct vIn {
+    float3 norm : NORMAL;
+    float2 tex  : TEXCOORD;
+    float3 pos  : POSITION;
+};
+
+struct vOut {
+    float4 pos  : POSITION;
+    float2 tex0 : TEXCOORD0;
+    float  fog  : FOG; // TODO: Might not be necessary to do anything with fog in the vertex shader(?) Investigate.
+};
+
+vOut main(
+    vIn              I,
+    uniform float4x4 m_model,
+    uniform float4x4 m_view,
+    uniform float4x4 m_proj,
+    uniform float4   camera_pos
+    )
+{
+    vOut   result;
+    
+    // Transform position and normal
+    float4 pos = mul(float4(I.pos.xyz, 1.0), m_model);
+    pos = mul(pos, m_view);
+    
+    float depth = pos.z;
+    
+    // Transform pos to screen space
+    pos = mul(pos, m_proj);
+    pos.xyz = pos.xyz / pos.w;
+    
+    result.pos  = pos;
+    result.tex0 = I.tex;
+    result.fog = depth;
+    
+    return result;
+}
