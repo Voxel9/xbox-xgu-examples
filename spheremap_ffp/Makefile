@@ -9,7 +9,7 @@ SHADER_OBJS = combiner.inl
 NXDK_DIR = $(CURDIR)/../../nxdk
 NXDK_SDL = y
 
-%.inl: %.ps $(FP20COMPILER)
+%.inl: %.ps | fp20compiler
 	@echo "[ FP20     ] $@"
 	$(FP20COMPILER) $< > $@
 
