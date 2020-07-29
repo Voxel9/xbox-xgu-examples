@@ -16,8 +16,6 @@ XguVec4 v_obj_pos   = {  0,   0,   0,  1 };
 XguVec4 v_cam_pos   = {  0,   0,   4,  1 };
 XguVec4 v_cam_rot   = {  0,   0,   0,  1 };
 
-XguVec4 v_light_dir = {  0,   0,   1,  1 };
-
 typedef struct Vertex {
     float pos[3];
     float texcoord[2];
@@ -89,8 +87,8 @@ int main(void) {
     float Yrotate = 0;
     
     // Transparency property - passed to the vertex shader, then finally passed to the register combiner
-    //float transparency = 0.25f;
-    //bool decrease = true;
+    float transparency = 1.0f;
+    bool decrease = true;
 
     while(1) {
         input_poll();
@@ -140,15 +138,15 @@ int main(void) {
         mtx_world_view(&m_view, v_cam_pos, v_cam_rot);
         
         // Ping-pong the transparency value back and forth from 1.0 <-> 0.0
-        /* if(transparency >= 1.0f)
+        if(transparency >= 1.0f)
             decrease = true;
         else if(transparency <= 0.0f)
             decrease = false;
         
         if(decrease)
-            transparency -= 0.05f;
+            transparency -= 0.02f;
         else
-            transparency += 0.05f; */
+            transparency += 0.02f;
         
         // Draw 5 cubes in a line
         for(int i = 0; i < 5; i++) {
@@ -168,11 +166,11 @@ int main(void) {
             p = xgu_set_transform_constant(p, (XguVec4 *)&m_view, 4);
             p = xgu_set_transform_constant(p, (XguVec4 *)&m_proj, 4);
             
+            // Just use camera position as light source
             p = xgu_set_transform_constant(p, &v_cam_pos, 1);
-            p = xgu_set_transform_constant(p, &v_light_dir, 1);
             
-            // XguVec4 transp_const = {0, 0, 0, transparency};
-            // p = xgu_set_transform_constant(p, &transp_const, 1);
+            XguVec4 transp_const = {transparency, 0, 0, 0};
+            p = xgu_set_transform_constant(p, &transp_const, 1);
             
             XguVec4 constants = {0, 0, 0, 0};
             p = xgu_set_transform_constant(p, &constants, 1);

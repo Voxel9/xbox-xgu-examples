@@ -15,9 +15,8 @@ vOut main(
     uniform float4x4 m_model,
     uniform float4x4 m_view,
     uniform float4x4 m_proj,
-    uniform float4   camera_pos,
-    uniform float4   light_dir
-    // uniform float4   transp_const
+    uniform float4   light_dir,
+    uniform float    transparency
     )
 {
     vOut   result;
@@ -36,7 +35,7 @@ vOut main(
     pos.xyz = pos.xyz / pos.w;
     
     result.pos  = pos;
-    result.col  = light_diffuse;
+    result.col  = float4(float3(light_diffuse), transparency);
     result.tex0 = I.tex;
     
     return result;
