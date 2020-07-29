@@ -1,12 +1,28 @@
 # xbox-xgu-examples
 Examples for original Xbox using nxdk and xgu (name pending).
 
-**Important:** As of latest xgu changes, a small workaround needs to be added to `xgu.h` and `xgux.h` in order to compile.  
-At the top of both header files is the line `#define XGU_API`. Replace with `#define XGU_API inline`.  
-Also, manually add the inline keyword to the `nv10_get_spot_coeff` function in `xgux.h`.  
-_Hopefully_, this is only a temporary workaround and xgu functions get moved to proper .c source files instead.
+---
 
-Press the start button in any sample to return to the dashboard.
+## Quick Guide
+This quick guide assumes you've already installed the dependencies for mainline nxdk, covered [here](https://github.com/XboxDev/nxdk/wiki/Install-the-Prerequisites).
+
+These examples are based on [an in-development branch of nxdk](https://github.com/dracc/nxdk/tree/xgu) containing the upcoming GPU middleware library, xgu.  
+Clone both this repository and said branch to the same directory. There should be 2 folders exactly next to eachother: `nxdk` and `xbox-xgu-examples`.
+
+You can clone the in-dev branch like so: `git clone --recurse-submodules -b xgu https://github.com/dracc/nxdk`
+
+**IMPORTANT:** Before compiling any examples, a tiny adjustment currently needs to be made to `xgu.h` and `xgux.h` (in `nxdk/lib/xgu`) to prevent linker errors.  
+- In `xgu.h`, append `#define XGU_API` to `#define XGU_API inline` near the top of the file.
+- In `xgux.h`, append `#define XGUX_API` to `#define XGUX_API inline` also near the top of the file.
+
+<sup>This isn't a very desirable fix for the hardcore developer as it still produces a few warnings in files that use these headers, but it at least prevents the duplicate symbol errors that occur if not added.  
+There may be plans to migrate xgu functions from header files to source files in the future, which will remove the need for this workaround.</sup>
+
+Now `cd` to any example directory and run `make`.
+
+Press the start button in any example to return to the dashboard.
+
+---
 
 ## License
 CC0 1.0 Universal.
