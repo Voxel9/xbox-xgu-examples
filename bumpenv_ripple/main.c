@@ -177,8 +177,8 @@ int main(void) {
     p = xgu_set_texture_filter(p, 1, 0, XGU_TEXTURE_CONVOLUTION_QUINCUNX, 2, 2, false, false, false, false);
     
     float bumpenv_mat[2*2] = {
-        0.02, 0.0,
-        0.0, 0.02,
+        32.0f/(float)texture_width, 0.0,
+        0.0, 32.0f/(float)texture_width,
     };
     
     p = xgu_set_texture_set_bump_env_mat(p, 1, bumpenv_mat);
