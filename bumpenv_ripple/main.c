@@ -162,19 +162,26 @@ int main(void) {
     p = xgu_set_depth_test_enable(p, true);
     p = xgu_set_depth_func(p, XGU_FUNC_LESS);
     
-    // Texture 0 (diffuse texture)
-    p = xgu_set_texture_offset(p, 0, (void *)((uint32_t)alloc_texture & 0x03ffffff));
-    p = xgu_set_texture_format(p, 0, 2, false, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8B8G8R8_SWIZZLED, 1, 9, 9, 0);
-    p = xgu_set_texture_address(p, 0, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, false);
+    // Texture 0 (DS/DT texture)
+    p = xgu_set_texture_offset(p, 0, (void *)((uint32_t)alloc_tex_dsdt & 0x03ffffff));
+    p = xgu_set_texture_format(p, 0, 2, false, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_G8B8_SWIZZLED, 1, 9, 9, 0);
+    p = xgu_set_texture_address(p, 0, XGU_WRAP, false, XGU_WRAP, false, XGU_WRAP, false, false);
     p = xgu_set_texture_control0(p, 0, true, 0, 0);
-    p = xgu_set_texture_filter(p, 0, 0, XGU_TEXTURE_CONVOLUTION_QUINCUNX, 2, 2, false, false, false, false);
+    p = xgu_set_texture_filter(p, 0, 0, XGU_TEXTURE_CONVOLUTION_QUINCUNX, 2, 2, true, true, true, true);
     
-    // Texture 1 (DS/DT texture)
-    p = xgu_set_texture_offset(p, 1, (void *)((uint32_t)alloc_tex_dsdt & 0x03ffffff));
-    p = xgu_set_texture_format(p, 1, 2, false, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_G8B8_SWIZZLED, 1, 9, 9, 0);
-    p = xgu_set_texture_address(p, 1, XGU_WRAP, false, XGU_WRAP, false, XGU_WRAP, false, false);
+    // Texture 1 (diffuse texture)
+    p = xgu_set_texture_offset(p, 1, (void *)((uint32_t)alloc_texture & 0x03ffffff));
+    p = xgu_set_texture_format(p, 1, 2, false, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8B8G8R8_SWIZZLED, 1, 9, 9, 0);
+    p = xgu_set_texture_address(p, 1, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, false);
     p = xgu_set_texture_control0(p, 1, true, 0, 0);
-    p = xgu_set_texture_filter(p, 1, 0, XGU_TEXTURE_CONVOLUTION_QUINCUNX, 2, 2, true, true, true, true);
+    p = xgu_set_texture_filter(p, 1, 0, XGU_TEXTURE_CONVOLUTION_QUINCUNX, 2, 2, false, false, false, false);
+    
+    float bumpenv_mat[2*2] = {
+        1.0, 0.0,
+        0.0, 1.0,
+    };
+    
+    p = xgu_set_texture_set_bump_env_mat(p, 1, bumpenv_mat);
     
     pb_end(p);
 

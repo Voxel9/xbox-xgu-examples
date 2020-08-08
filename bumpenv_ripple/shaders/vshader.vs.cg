@@ -23,8 +23,7 @@ vOut main(
     // Transform position and normal
     float4 pos = mul(float4(I.pos.xyz, 1.0), m_model);
     
-    // Transform tex1 coords to simulate water-like ripple effect
-    // Since we're drawing basic quads, we'll just steal tex0's coords
+    // Transform ripple texture coords to simulate water-like effect
     float2 dsdt_tex = I.tex;
     dsdt_tex.y = dsdt_tex.y + m_ripple.x;
     
@@ -34,8 +33,8 @@ vOut main(
     pos.xyz = pos.xyz / pos.w;
     
     result.pos  = pos;
-    result.tex0 = I.tex;
-    result.tex1 = dsdt_tex;
+    result.tex0 = dsdt_tex;
+    result.tex1 = I.tex;
     
     return result;
 }
