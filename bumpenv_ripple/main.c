@@ -21,8 +21,8 @@ XguVec4 bottom_quad_pos = { 0, -0.85, 0.35, 1 };
 XguVec4 bottom_quad_rot = { 0.785398, 0, 0, 1 };
 XguVec4 bottom_quad_sca = { 1, -1, 1, 1 };
 
-XguVec4 v_cam_pos   = { 0, -0.3, 1.4, 1 };
-XguVec4 v_cam_rot   = { 0,    0,   0, 1 };
+XguVec4 v_cam_pos   = { 0, -0.3, 1, 1 };
+XguVec4 v_cam_rot   = { 0,    0, 0, 1 };
 
 typedef struct Vertex {
     float pos[3];
@@ -176,9 +176,18 @@ int main(void) {
     p = xgu_set_texture_control0(p, 1, true, 0, 0);
     p = xgu_set_texture_filter(p, 1, 0, XGU_TEXTURE_CONVOLUTION_QUINCUNX, 2, 2, false, false, false, false);
     
+    // Our DS/DT texture is signed, therefore can contain a value between -1.0 and +1.0
+    // This texture value is multiplied with the texture matrix,
+    // e.g. if the matrix is {1,0,0,1}, then the step amount through the pixels would be 1:1 with the texture value.
+    
+    // tex1 UV coords will be added to the result. With swizzle textures, a texture value of -1.0 to +1.0 would be added to the UV coord.
+    // But remember that UV coordinates are normalized for swizzle textures. So 1.0 is the entire texture width! (Would be too large to use for stepping through the pixels)
+    // So to compensate, we scale down the float value in the matrix. If we want to move at most +/-32 pixels in a 512 pixel wide texture,
+    // that means 32/512 pixels = 0.0625 (which is the normalized UV value).
+    
     float bumpenv_mat[2*2] = {
         32.0f/(float)texture_width, 0.0,
-        0.0, 32.0f/(float)texture_width,
+        0.0, 32.0f/(float)texture_height,
     };
     
     p = xgu_set_texture_set_bump_env_mat(p, 1, bumpenv_mat);
