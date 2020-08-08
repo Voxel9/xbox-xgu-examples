@@ -1,4 +1,4 @@
-# Bumpenv Ripple (currently broken)
+# Bumpenv Ripple
 
 Demonstrates the use of DS/DT textures to apply per-pixel pertubation/offset to a diffuse texture. This can be used for distortion effects such as water.
 
