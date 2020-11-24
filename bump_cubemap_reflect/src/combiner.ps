@@ -1,0 +1,19 @@
+!!TS1.0
+texture_2d();
+dot_product_reflect_cube_map_eye_from_qs_1of3(tex0);
+dot_product_reflect_cube_map_eye_from_qs_2of3(tex0);
+dot_product_reflect_cube_map_eye_from_qs_3of3(tex0);
+
+!!RC1.0
+{
+    rgb {
+        col0 = tex3.rgb;
+    }
+    
+    alpha {
+        col0 = tex3.a;
+    }
+}
+
+out.rgb = unsigned(col0.rgb);
+out.a = unsigned(col0.a);

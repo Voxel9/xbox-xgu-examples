@@ -1,0 +1,40 @@
+struct vIn {
+    float3 norm : NORMAL;
+    float2 tex  : TEXCOORD;
+    float3 pos  : POSITION;
+};
+
+struct vOut {
+    float4 pos  : POSITION;
+    float2 tex0 : TEXCOORD0;
+    float2 tex1 : TEXCOORD1;
+};
+
+vOut main(
+    vIn              I,
+    uniform float4x4 m_model,
+    uniform float4x4 m_view,
+    uniform float4x4 m_proj,
+    uniform float4   m_ripple
+    )
+{
+    vOut   result;
+    
+    // Transform position and normal
+    float4 pos = mul(float4(I.pos.xyz, 1.0), m_model);
+    
+    // Transform ripple texture coords to simulate water-like effect
+    float2 dsdt_tex = I.tex;
+    dsdt_tex.y = dsdt_tex.y + m_ripple.x;
+    
+    // Transform pos to screen space
+    pos = mul(pos, m_view);
+    pos = mul(pos, m_proj);
+    pos.xyz = pos.xyz / pos.w;
+    
+    result.pos  = pos;
+    result.tex0 = dsdt_tex;
+    result.tex1 = I.tex;
+    
+    return result;
+}

@@ -1,10 +1,10 @@
 XBE_TITLE = swizzle_texture
 GEN_XISO = $(XBE_TITLE).iso
 
-SRCS =  $(wildcard $(CURDIR)/*.c) \
+SRCS =  $(wildcard $(CURDIR)/src/*.c) \
         $(wildcard $(CURDIR)/../common/*.c)
 
-SHADER_OBJS = combiner.inl vshader.inl
+SHADER_OBJS = src/combiner.inl src/vshader.inl
 
 NXDK_DIR = $(CURDIR)/../../nxdk
 NXDK_SDL = y

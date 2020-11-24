@@ -133,20 +133,16 @@ void mtx_world_view(XguMatrix4x4 *world_view, XguVec4 translate, XguVec4 rotate)
     mtx_rotate(world_view, *world_view, rotate);
 }
 
-void mtx_view_screen(XguMatrix4x4 *view_screen, float aspect, float left, float right, float bottom, float top, float near, float far) {
-    // aspect ratio adjustment
-    left = (left * aspect);
-    right = (right * aspect);
+void mtx_view_screen(XguMatrix4x4 *view_screen, float aspect, float fov, float near, float far) {
+    fov *= 0.01745329251f;
     
     mtx_identity(view_screen);
-    view_screen->f[0]  = (2 * near) / (right - left);
-    view_screen->f[5]  = (2 * near) / (top - bottom);
-    view_screen->f[8]  = -(right + left) / (right - left);
-    view_screen->f[9]  = -(top + bottom) / (top - bottom);
-    view_screen->f[10] = -far / (far - near);
-    view_screen->f[11] = -1.00f;
-    view_screen->f[14] = near * far / (far - near);
-    view_screen->f[15] = 0.00f;
+    view_screen->f[0]  = fov/aspect;
+    view_screen->f[5]  = fov;
+    view_screen->f[10] = far / (near - far);
+    view_screen->f[11] = -1.0f;
+    view_screen->f[14] = -(far * near) / (far - near);
+    view_screen->f[15] = 0.0f;
 }
 
 void mtx_viewport(XguMatrix4x4 *mtx_out, float x, float y, float width, float height, float z_min, float z_max) {
@@ -154,9 +150,8 @@ void mtx_viewport(XguMatrix4x4 *mtx_out, float x, float y, float width, float he
     
     mtx_out->f[0]  = width/2.0f;
     mtx_out->f[5]  = height/-2.0f;
-    mtx_out->f[10] = z_max - z_min;
-    mtx_out->f[15] = 1.0f;
+    mtx_out->f[10] = (z_max - z_min)/2.0f;
     mtx_out->f[12] = x + width/2.0f;
     mtx_out->f[13] = y + height/2.0f;
-    mtx_out->f[14] = z_min;
+    mtx_out->f[14] = (z_min + z_max)/2.0f;
 }

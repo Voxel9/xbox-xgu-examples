@@ -1,0 +1,17 @@
+!!TS1.0
+texture_2d();
+offset_2d(tex0, 0.0625, 0, 0, 0.0625);
+
+!!RC1.0
+{
+    rgb {
+        col0 = tex1.rgb;
+    }
+    
+    alpha {
+        col0 = tex0.a;
+    }
+}
+
+out.rgb = unsigned(col0.rgb);
+out.a = unsigned(col0.a);

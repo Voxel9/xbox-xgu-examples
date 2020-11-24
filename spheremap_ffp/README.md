@@ -1,4 +1,5 @@
 # Spheremap FFP
+**(NOTE: REGRESSED!)**
 
 Demonstrates texture generation in the fixed-function pipeline to produce a sphere map in vertex space.
 
