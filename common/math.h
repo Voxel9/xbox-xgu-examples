@@ -1,7 +1,7 @@
 #ifndef __MATH_H__
 #define __MATH_H__
 
-#include <xgu/xgu.h>
+#include "xgu/xgu.h"
 
 void mtx_identity(XguMatrix4x4 *mtx);
 

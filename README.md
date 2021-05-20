@@ -1,22 +1,18 @@
-# xbox-xgu-examples
-Examples for original Xbox using nxdk and xgu (name pending).
+# Xbox xgu Sample Programs
+GPU-accelerated example programs for the original Xbox using nxdk and xgu.
 
 ---
 
 ## Quick Guide
-This quick guide assumes you've already installed the dependencies for mainline nxdk, covered [here](https://github.com/XboxDev/nxdk/wiki/Install-the-Prerequisites).
+This quick guide assumes you've already cloned and setup nxdk, covered [here](https://github.com/XboxDev/nxdk/wiki/Getting-Started).
 
-These examples are based on [an in-development branch of nxdk](https://github.com/dracc/nxdk/tree/xgu_submodule) containing the upcoming GPU middleware library, xgu.  
-Clone both this repository and said branch to the same directory. There should be 2 folders exactly next to eachother: `nxdk` and `xbox-xgu-examples`.
+Clone this repository into the same directory which the nxdk directory resides in.  
+You can use `git clone --recurse-submodules https://github.com/Voxel9/xbox-xgu-examples` to do this.  
+Both the `nxdk` and `xbox-xgu-examples` directories should now be next to eachother.
 
-You can clone the in-dev branch like so: `git clone --recurse-submodules -b xgu_submodule https://github.com/dracc/nxdk`
-
-**IMPORTANT:** Before compiling any examples, a tiny adjustment currently needs to be made to `xgu.h` and `xgux.h` (in `nxdk/lib/xgu`) to prevent linker errors.  
-- In `xgu.h`, append `inline` to the end of `#define XGU_API`, near the top of the file.
-- In `xgux.h`, append `inline` to the end of `#define XGUX_API`, also near the top of the file.
-
-<sup>This isn't a very desirable fix for the hardcore developer as it still produces a few warnings in files that use these headers, but it at least prevents the duplicate symbol errors that occur if not added.  
-There may be plans to migrate xgu functions from header files to source files in the future, which will remove the need for this workaround.</sup>
+**IMPORTANT:** Before compiling any examples, a tiny adjustment currently needs to be made to `common/xgu/xgu.h` and `common/xgu/xgux.h` to prevent linker errors.  
+- In `xgu.h`, append `static inline` to the end of `#define XGU_API`.
+- In `xgux.h`, append `static inline` to the end of `#define XGUX_API`.
 
 Now `cd` to any example directory and run `make`.
 

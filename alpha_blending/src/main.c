@@ -1,8 +1,8 @@
 #include <hal/video.h>
-#include <xgu/xgu.h>
-#include <xgu/xgux.h>
 #include <SDL_image.h>
 
+#include "../../common/xgu/xgu.h"
+#include "../../common/xgu/xgux.h"
 #include "../../common/input.h"
 #include "../../common/math.h"
 
