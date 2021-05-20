@@ -8,41 +8,12 @@
 #include "../../common/swizzle.h"
 
 typedef struct Vertex {
-    float pos[3];
-    float texcoord[2];
-    float normal[3];
+    XguVec3 pos;
+    XguVec2 texcoord;
+    XguVec3 normal;
 } Vertex;
 
 #include "verts.h"
-
-// For tangents
-typedef struct Vector3 {
-    float x, y, z;
-} Vector3;
-
-// Math helper functions for calculating tangents
-void vec3_subtract(float *out, float *a, float *b) {
-    out[0] = a[0] - b[0];
-    out[1] = a[1] - b[1];
-    out[2] = a[2] - b[2];
-}
-
-void vec3_multiply(float *out, float *a, float *b) {
-    out[0] = a[0] * b[0];
-    out[1] = a[1] * b[1];
-    out[2] = a[2] * b[2];
-}
-
-void vec3_multiply_float(float *out, float *a, float b) {
-    out[0] = a[0] * b;
-    out[1] = a[1] * b;
-    out[2] = a[2] * b;
-}
-
-void vec2_subtract(float *out, float *a, float *b) {
-    out[0] = a[0] - b[0];
-    out[1] = a[1] - b[1];
-}
 
 static void init_shader(void) {
     XguTransformProgramInstruction vs_program[] = {
@@ -106,35 +77,34 @@ int main(void) {
     memcpy(alloc_vertices, vertices, sizeof(vertices));
     uint32_t num_vertices = sizeof(vertices)/sizeof(vertices[0]);
     
-    Vector3 *alloc_tangents = MmAllocateContiguousMemoryEx(num_vertices * sizeof(Vector3), 0, 0x03FFAFFF, 0, PAGE_WRITECOMBINE | PAGE_READWRITE);
+    XguVec3 *alloc_tangents = MmAllocateContiguousMemoryEx(num_vertices * sizeof(XguVec3), 0, 0x03FFAFFF, 0, PAGE_WRITECOMBINE | PAGE_READWRITE);
     
     // Calculate vertex tangents
-    // TODO: Tidy this later!
     for(int i = 0; i < num_vertices; i += 3) {
         // Triangle edge deltas
-        float deltaPos1[3], deltaPos2[3];
-        vec3_subtract(deltaPos1, alloc_vertices[i+1].pos, alloc_vertices[i+0].pos);
-        vec3_subtract(deltaPos2, alloc_vertices[i+2].pos, alloc_vertices[i+0].pos);
+        XguVec3 deltaPos1, deltaPos2;
+        vec3_subtract(&deltaPos1, alloc_vertices[i+1].pos, alloc_vertices[i+0].pos);
+        vec3_subtract(&deltaPos2, alloc_vertices[i+2].pos, alloc_vertices[i+0].pos);
         
         // UV deltas
-        float deltaUV1[2], deltaUV2[2];
-        vec2_subtract(deltaUV1, alloc_vertices[i+1].texcoord, alloc_vertices[i+0].texcoord);
-        vec2_subtract(deltaUV2, alloc_vertices[i+2].texcoord, alloc_vertices[i+0].texcoord);
+        XguVec2 deltaUV1, deltaUV2;
+        vec2_subtract(&deltaUV1, alloc_vertices[i+1].texcoord, alloc_vertices[i+0].texcoord);
+        vec2_subtract(&deltaUV2, alloc_vertices[i+2].texcoord, alloc_vertices[i+0].texcoord);
         
-        float r = 1.0f / (deltaUV1[0] * deltaUV2[1] - deltaUV1[1] * deltaUV2[0]);
+        float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
         
-        float mul_temp1[3], mul_temp2[3];
-        vec3_multiply_float(mul_temp1, deltaPos1, deltaUV2[1]);
-        vec3_multiply_float(mul_temp2, deltaPos2, deltaUV1[1]);
+        XguVec3 mul_product1, mul_product2;
+        vec3_multiply_float(&mul_product1, deltaPos1, deltaUV2.y);
+        vec3_multiply_float(&mul_product2, deltaPos2, deltaUV1.y);
         
-        float tangent[3];
-        vec3_subtract(tangent, mul_temp1, mul_temp2);
-        vec3_multiply_float(tangent, tangent, r);
+        XguVec3 tangent;
+        vec3_subtract(&tangent, mul_product1, mul_product2); 
+        vec3_multiply_float(&tangent, tangent, r);
         
         for(int j = 0; j < 3; j++) {
-            alloc_tangents[i+j].x = tangent[0];
-            alloc_tangents[i+j].y = tangent[1];
-            alloc_tangents[i+j].z = tangent[2];
+            alloc_tangents[i+j].x = tangent.x;
+            alloc_tangents[i+j].y = tangent.y;
+            alloc_tangents[i+j].z = tangent.z;
         }
     }
     
@@ -189,7 +159,7 @@ int main(void) {
         // Texture 3 (Cube texture)
         p = xgu_set_texture_offset(p, 3, (void *)((uint32_t)alloc_tex_cube & 0x03ffffff)); 
         p = xgu_set_texture_format(p, 3, 2, true, XGU_SOURCE_COLOR, 2, XGU_TEXTURE_FORMAT_A8B8G8R8_SWIZZLED, 1, 8, 8, 0);
-        p = xgu_set_texture_address(p, 0, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, false);
+        p = xgu_set_texture_address(p, 3, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, XGU_CLAMP_TO_EDGE, false, false);
         p = xgu_set_texture_control0(p, 3, true, 0, 0);
         p = xgu_set_texture_filter(p, 3, 0, XGU_TEXTURE_CONVOLUTION_QUINCUNX, 2, 2, false, false, false, false);
         
@@ -220,10 +190,10 @@ int main(void) {
             xgux_set_attrib_pointer(i, XGU_FLOAT, 0, 0, NULL);
         }
         
-        xgux_set_attrib_pointer(XGU_VERTEX_ARRAY, XGU_FLOAT, 3, sizeof(alloc_vertices[0]), &alloc_vertices[0].pos[0]);
-        xgux_set_attrib_pointer(XGU_TEXCOORD0_ARRAY, XGU_FLOAT, 2, sizeof(alloc_vertices[0]), &alloc_vertices[0].texcoord[0]);
-        xgux_set_attrib_pointer(XGU_NORMAL_ARRAY, XGU_FLOAT, 3, sizeof(alloc_vertices[0]), &alloc_vertices[0].normal[0]);
-        xgux_set_attrib_pointer(XGU_TEXCOORD1_ARRAY, XGU_FLOAT, 3, sizeof(Vector3), &alloc_tangents[0].x);
+        xgux_set_attrib_pointer(XGU_VERTEX_ARRAY, XGU_FLOAT, 3, sizeof(alloc_vertices[0]), &alloc_vertices[0].pos.x);
+        xgux_set_attrib_pointer(XGU_TEXCOORD0_ARRAY, XGU_FLOAT, 2, sizeof(alloc_vertices[0]), &alloc_vertices[0].texcoord.x);
+        xgux_set_attrib_pointer(XGU_NORMAL_ARRAY, XGU_FLOAT, 3, sizeof(alloc_vertices[0]), &alloc_vertices[0].normal.x);
+        xgux_set_attrib_pointer(XGU_TEXCOORD3_ARRAY, XGU_FLOAT, 3, sizeof(XguVec3), &alloc_tangents[0].x);
         
         xgux_draw_arrays(XGU_TRIANGLES, 0, num_vertices);
         

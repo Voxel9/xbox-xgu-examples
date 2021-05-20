@@ -1,8 +1,8 @@
 struct vIn {
-    float3 tang : TEXCOORD1;
+    float3 pos  : POSITION;
     float3 norm : NORMAL;
     float2 tex  : TEXCOORD0;
-    float3 pos  : POSITION;
+    float3 tang : TEXCOORD3;
 };
 
 struct vOut {
@@ -26,25 +26,25 @@ vOut main(
     // Transform position
     float4 pos = mul(float4(I.pos.xyz, 1.0), m_model);
     
-    // Inverse and transpose the modelview matrix, and keep the upper 3x3
-    float4x4 modelview = mul(m_model, m_view);
-    float3x3 t_inv_modelview = (float3x3)transpose(inverse(modelview));
+    // Object-to-world (modelView) and world-to-object (inverse modelView)
+    float3x3 modelview = (float3x3)mul(m_model, m_view);
+    float3x3 inv_modelview = inverse(modelview);
     
     // Construct TBN Matrix using tangent, bitangent and normal
-    float3 T = normalize(mul(t_inv_modelview, I.tang));
-    float3 N = normalize(mul(t_inv_modelview, I.norm));
+    float3 T = normalize(mul(inv_modelview, I.tang));
+    float3 N = normalize(mul(inv_modelview, I.norm));
     float3 B = cross(N, T);
     
-    // Ensure orthonormalization
+    // Ensure orthogonalization
     T = cross(B, N);
     
     float3x3 TBN = float3x3(T, B, N);
     
     // Construct final lookup matrix
-    float3x3 TexelMat = mul(t_inv_modelview, TBN);
+    float3x3 TexelMat = mul(inv_modelview, TBN);
     
     // Calculate eye vector
-    float3 eyeDir = pos.xyz - camera_pos.xyz;
+    float3 eyeDir = I.pos.xyz - camera_pos.xyz;
     
     // Transform pos to screen space
     pos = mul(pos, m_view);

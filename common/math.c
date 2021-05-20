@@ -5,6 +5,9 @@
 
 #include <math.h>
 
+
+/*** Matrix functions ***/
+
 void mtx_identity(XguMatrix4x4 *mtx) {
     memset(mtx->f, 0, 16*sizeof(float));
     mtx->f[0] = 1.00f;
@@ -154,4 +157,27 @@ void mtx_viewport(XguMatrix4x4 *mtx_out, float x, float y, float width, float he
     mtx_out->f[12] = x + width/2.0f;
     mtx_out->f[13] = y + height/2.0f;
     mtx_out->f[14] = (z_min + z_max)/2.0f;
+}
+
+
+/*** Vector3 functions ***/
+
+void vec3_subtract(XguVec3 *out, XguVec3 a, XguVec3 b) {
+    out->x = a.x - b.x;
+    out->y = a.y - b.y;
+    out->z = a.z - b.z;
+}
+
+void vec3_multiply_float(XguVec3 *out, XguVec3 a, float b) {
+    out->x = a.x * b;
+    out->y = a.y * b;
+    out->z = a.z * b;
+}
+
+
+/*** Vector2 functions ***/
+
+void vec2_subtract(XguVec2 *out, XguVec2 a, XguVec2 b) {
+    out->x = a.x - b.x;
+    out->y = a.y - b.y;
 }
