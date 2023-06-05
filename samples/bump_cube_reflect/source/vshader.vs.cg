@@ -1,0 +1,51 @@
+struct vIn {
+    float3 pos  : POSITION;
+    float3 norm : NORMAL;
+    float2 tex  : TEXCOORD0;
+    float3 tang : TEXCOORD1;
+};
+
+struct vOut {
+    float4 pos  : POSITION;
+    float2 tex0 : TEXCOORD0;
+    float4 tex1 : TEXCOORD1;
+    float4 tex2 : TEXCOORD2;
+    float4 tex3 : TEXCOORD3;
+};
+
+vOut main(
+    vIn I,
+    uniform float4x4 Model,
+    uniform float4x4 InvModelView,
+    uniform float4x4 MVP,
+    uniform float4 CameraPos
+    )
+{
+    vOut result;
+
+    // Construct TBN Matrix using tangent, bitangent and normal
+    float3 N = normalize(mul(float4(I.norm.xyz, 0.0), InvModelView).xyz);
+    float3 T = normalize(mul(float4(I.tang.xyz, 0.0), Model).xyz);
+    float3 B = normalize(cross(N, T));
+
+    float3x3 TBN = transpose(float3x3(T, B, N));
+
+    // Transform position to world-space
+    float4 pos_world = mul(float4(I.pos.xyz, 1.0), Model);
+
+    // Calculate eye vector
+    float3 eyeDir = CameraPos.xyz - pos_world.xyz;
+
+    result.tex1 = float4(TBN._11_12_13, eyeDir.x);
+    result.tex2 = float4(TBN._21_22_23, eyeDir.y);
+    result.tex3 = float4(TBN._31_32_33, eyeDir.z);
+
+    // Transform world-space pos to screen-space
+    float4 pos = mul(float4(I.pos.xyz, 1.0), MVP);
+    pos.xyz = pos.xyz / pos.w;
+
+    result.pos  = pos;
+    result.tex0 = I.tex;
+
+    return result;
+}

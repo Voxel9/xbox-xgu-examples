@@ -1,0 +1,30 @@
+ifeq ($(strip $(NXDK_DIR)),)
+$(error "Please set NXDK_DIR in your environment. export NXDK_DIR=/path/to/nxdk, or /path/to/nxdk/bin/activate")
+endif
+
+SRCS = $(wildcard $(XGU_EXAMPLES_DIR)/common/*.cpp) \
+       $(wildcard $(XGU_EXAMPLES_DIR)/external/printf/*.c)
+
+INCLUDE = -I$(XGU_EXAMPLES_DIR)/common \
+          -I$(XGU_EXAMPLES_DIR)/external/xgu \
+          -I$(XGU_EXAMPLES_DIR)/external/glm \
+          -I$(XGU_EXAMPLES_DIR)/external/printf
+
+CFLAGS = -O3 $(INCLUDE)
+
+CXXFLAGS = $(CFLAGS) -fno-rtti -fno-exceptions
+
+SHADER_OBJS = $(XGU_EXAMPLES_DIR)/common/combiner_text.inl
+
+NXDK_CXX = y
+NXDK_SDL = y
+
+# Vertex shader rules
+%.inl: %.vs | vp20compiler
+	@echo "[ VP20     ] $@"
+	$(VP20COMPILER) $< > $@
+
+# Pixel shader rules
+%.inl: %.ps | fp20compiler
+	@echo "[ FP20     ] $@"
+	$(FP20COMPILER) $< > $@

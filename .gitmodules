@@ -1,3 +1,9 @@
 [submodule "common/xgu"]
-	path = common/xgu
+	path = external/xgu
 	url = https://github.com/dracc/xgu
+[submodule "external/printf"]
+	path = external/printf
+	url = https://github.com/mpaland/printf
+[submodule "external/glm"]
+	path = external/glm
+	url = https://github.com/g-truc/glm

@@ -1,5 +1,5 @@
 # Xbox xgu Sample Programs
-GPU-accelerated example programs for the original Xbox using nxdk and xgu.
+Example GPU-accelerated graphics programs for the original Xbox using nxdk and xgu.
 
 ---
 
@@ -10,7 +10,7 @@ Clone this repository into the same directory which the nxdk directory resides i
 You can use `git clone --recurse-submodules https://github.com/Voxel9/xbox-xgu-examples` to do this.  
 Both the `nxdk` and `xbox-xgu-examples` directories should now be next to eachother.
 
-**IMPORTANT:** Before compiling any examples, a tiny adjustment currently needs to be made to `common/xgu/xgu.h` and `common/xgu/xgux.h` to prevent linker errors.  
+**IMPORTANT:** Before compiling any examples, a tiny adjustment currently needs to be made to `external/xgu/xgu.h` and `external/xgu/xgux.h` to prevent linker errors.  
 - In `xgu.h`, append `static inline` to the end of `#define XGU_API`.
 - In `xgux.h`, append `static inline` to the end of `#define XGUX_API`.
 
